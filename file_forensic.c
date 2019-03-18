@@ -7,7 +7,7 @@
 //1-file name
 //2-file type
 //3-file size
-//4-file last access
+//4-file access permissions
 //5-file creation date
 //6-file last modification date
 //7-md5sum hash
