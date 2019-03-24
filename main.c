@@ -18,12 +18,12 @@ int proc_args(char* opts[],char* dir_name, char* file_name, char* hashes[],char*
     //first check for recursive analysis on directories
     if(opts[1] != NULL) {
 
-        dir_name = opts[1];
+        strcpy(dir_name,opts[1]);
         printf("Directory name: %s\n",dir_name);
     }   
     else if(opts[0] != NULL) {
 
-        file_name = opts[0];
+        strcpy(file_name,opts[0]);
         printf("File name: %s\n",file_name);
     }
     else {
@@ -42,21 +42,12 @@ int proc_args(char* opts[],char* dir_name, char* file_name, char* hashes[],char*
             i++;
         }
         hashes[3] = NULL;
-
-        for(i=0; i <4; i++) {
-            if(hashes[i] == NULL)
-                break;
-            else {
-                printf("Hash %d: %s\n",i+1,hashes[i]);
-            }
-        }
-
-
     }
 
     //check if the outfile option has been selected
     if(opts[3] != NULL) {
-        outfile = opts[3];
+
+        strcpy(outfile,opts[3]);
         printf("Output file: %s\n",outfile);
     }
 
@@ -87,30 +78,51 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    char* dir_name = NULL;
-    char* file_name = NULL;
-    char * hashes[4] = {NULL};
-    char* outfile = NULL;
+    char* dir_name = malloc(MAX_BUFFER);
+    char* file_name = malloc(MAX_BUFFER);
+    char* hashes[4] = {malloc(MAX_BUFFER)};
+    char* outfile = malloc(MAX_BUFFER);
 
+    char* md5sum = malloc(MAX_BUFFER);
+    char* sha1sum = malloc(MAX_BUFFER);
+    char* sha256sum = malloc(MAX_BUFFER);
     //process parsed and check for missing info
     if (proc_args(opts,dir_name,file_name,hashes,outfile) !=0) {
         show_usage();
         return 3;
     };
 
-    printf("%s %s %s\n",hashes[0],file_name,outfile);
-    if(hashes[0] != NULL && file_name != NULL) {
-        if(check_hash(hashes[0]) != 0) {
-            printf("Invalid hash choosen.\n");
-            show_usage();
-            return 4;
+    for(int i =0; hashes[i] != NULL;i++) {
+        
+        if(strcmp(hashes[i],"md5") == 0) {
+            md5sum = strtok(md5_sum(file_name)," ");
+            printf("MD5 sum: %s\n",md5sum);
         }
 
-        printf("File hash: %s",hash_function(hashes[0],file_name));
+        if(strcmp(hashes[i],"sha1")==0) {
+            sha1sum = strtok(sha1_sum(file_name), " ");
+            printf("SHA1 sum: %s\n",sha1sum);
+        }
+
+        if(strcmp(hashes[i],"sha256")==0) {
+            sha256sum = strtok(sha256_sum(file_name)," ");
+            printf("SHA256 sum: %s\n",sha256sum);
+        }        
     }
+
+    
     //process the command
 
     //call outside functions
-
+    
+    //free alocated memory
+    {
+        free(dir_name);
+        free(file_name);
+        free(outfile);
+        free(md5sum);
+        free(sha1sum);
+        free(sha256sum);
+    }
     return 0;
 }

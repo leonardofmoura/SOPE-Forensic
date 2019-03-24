@@ -3,24 +3,56 @@
 #include <string.h>
 #include <hash_functions.h>
 
-char * hash_function(char* hash,char* file_name) {
-    char* hash_command = "";
-    strcat(hash_command,hash);
-    printf("hash command 1: %s",hash_command);
-    strcat(hash_command,"sum ");
-    printf("hash command 2: %s",hash_command);
+
+char* md5_sum(const char* file_name) {
+    char* hash_command = malloc(MAX_BUFFER);
+    strcpy(hash_command,"md5sum ");
     strcat(hash_command,file_name);
-    printf("hash command 3: %s",hash_command);
-    FILE* f1 = popen(hash_command,"r");
-    char* hash1 = NULL;
-    if( fread(hash1,1,MAX_BUFFER,f1) <0) {
-        perror(hash1);
+    
+    FILE* f = popen(hash_command,"r");
+    char* hash = malloc(MAX_BUFFER);
+    
+    if(fread(hash,1,MAX_BUFFER,f) <0) {
+        perror(hash);
         exit(1);
     }
-    printf("hash1: %s",hash1);
-    pclose(f1);
+    
+    pclose(f);
+    free(hash_command);
+    return hash;
+}
 
-    return hash1;
+char* sha1_sum(const char* file_name) {
+    char* hash_command = malloc(MAX_BUFFER);
+    strcpy(hash_command,"sha1sum ");
+    strcat(hash_command,file_name);
+    
+    FILE* f = popen(hash_command,"r");
+    char* hash = malloc(MAX_BUFFER);
+
+    if(fread(hash,1,MAX_BUFFER,f) <0) {
+        perror(hash);
+        exit(1);
+    }
+    pclose(f);
+    free(hash_command);
+    return hash;
+}
+
+char* sha256_sum(const char* file_name) {
+    char* hash_command = malloc(MAX_BUFFER);
+    strcpy(hash_command,"sha256sum ");
+    strcat(hash_command,file_name);
+    
+    FILE* f = popen(hash_command,"r");
+    char* hash = malloc(MAX_BUFFER);
+    if(fread(hash,1,MAX_BUFFER,f) <0) {
+        perror(hash);
+        exit(1);
+    }
+    pclose(f);
+    free(hash_command);
+    return hash;
 }
 
 int check_hash(char* hash) {
