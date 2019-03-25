@@ -1,7 +1,7 @@
 #include <string.h>
 
 //input parser function
-int input_parser(int n_args, char* argv[],char* options[]) {
+int input_parser(int n_args, char* argv[], char* options[]) {
     
     options[4] = "false";
 

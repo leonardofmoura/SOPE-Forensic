@@ -7,6 +7,7 @@
 #include <time.h>
 #include <string.h>
 #include <input_parser.h>
+#include <file_logging.h>
 //include de ficheiros de fora
 
 #define BUFFER_SIZE 256
@@ -15,7 +16,7 @@ void show_usage() {
     printf("Usage: forensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[], char* envp[]) {
 
     if(argc == 1) {
         //invalid arguments
@@ -105,7 +106,7 @@ int main(int argc, char* argv[]) {
 
     //check if the execution log option has been selected
     if(strcmp(opts[4],"true")== 0) {
-        printf("Logging execution events.\n");
+        file_logger(getpid(),COMMAND);
     } 
     else {
         printf("Not logging execution events.\n");
