@@ -8,7 +8,9 @@
 #include <string.h>
 #include <input_parser.h>
 #include <hash_functions.h>
+
 //include de ficheiros de fora
+#include "file_forensic.h"
 
 void show_usage() {
     printf("Usage: forensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");
@@ -91,6 +93,18 @@ int main(int argc, char* argv[]) {
         show_usage();
         return 3;
     };
+
+    if(file_name != NULL){
+        char *result = getFileInfo(file_name);
+        printf("%s, ", result);
+
+        free(result);
+
+        result = getFileStatus(file_name);
+        printf("%s", result);
+
+        free(result);
+    }
 
     for(int i =0; hashes[i] != NULL;i++) {
         
