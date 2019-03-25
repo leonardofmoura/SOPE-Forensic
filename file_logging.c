@@ -7,7 +7,6 @@
 
 static time_t starting_time;
 
-//stores the staring time of the program
 void init_time() {
     time(&starting_time);
 }
