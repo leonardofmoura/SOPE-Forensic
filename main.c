@@ -56,7 +56,6 @@ int proc_args(char* opts[],char* dir_name, char* file_name, char* hashes[],char*
     //check if the execution log option has been selected
     if(strcmp(opts[4],"true")== 0) {
         init_time();
-        file_logger(getpid(),COMMAND);
     } 
     else {
         printf("Not logging execution events.\n");
@@ -97,6 +96,7 @@ int main(int argc, char* argv[]) {
 
     if(file_name != NULL){
         char *result = getFileInfo(file_name);
+        verbose_analized(getpid(),file_name);
         printf("%s, ", result);
 
         free(result);
