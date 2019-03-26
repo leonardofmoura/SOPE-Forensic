@@ -24,6 +24,9 @@ void get_analized_string(char filename[], char analized_string[]);
 //verbose an analized file
 void verbose_analized(pid_t pid, char filename[]);
 
+//verbose a received signal
+void verbose_signal(pid_t pid, int sig);
+
 //base function not to be used
 void file_logger(pid_t pid, enum log_event ev);
 

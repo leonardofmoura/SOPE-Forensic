@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <signal.h>
+#include <string.h>
 #include <file_logging.h>
 
 static time_t starting_time;
@@ -35,7 +37,11 @@ void get_analized_string(char filename[], char analized_string[]) {
     sprintf(analized_string, "ANALIZED %s\n",filename);
 }
 
-//work in progress
+void get_signal_string(int sig, char signal_string[]) {
+    sprintf(signal_string,"SIGNAL : %s\n", strsignal(sig));
+}
+
+//work in progressvoid get_analized_string(char filename[], char analized_string[])
 void verbose_command(pid_t pid, char* opts[]) {
     if (verbose) {
         //initialize log file
@@ -121,6 +127,55 @@ void verbose_analized(pid_t pid, char filename[]) {
     else {
         return;
     }      
+}
+
+void verbose_signal(pid_t pid, int sig) {
+        if (verbose) {
+        //initialize log file
+        char* logfilename = getenv("LOGFILENAME");
+        int logfile = open(logfilename, O_WRONLY | O_APPEND); 
+
+        //get the time 
+        char time_string[MAX_STR_SIZE];
+        calculate_elapsed_time(time_string);
+
+        //convert the pid to string
+        char pid_string[MAX_STR_SIZE];
+        pid_to_string(pid, pid_string);
+
+        //process the signal to a string
+        char signal_string[MAX_STR_SIZE];
+        get_signal_string(sig,signal_string);
+
+        //write the pid
+        for (int i = 0; i < MAX_STR_SIZE; i++) {
+            if (pid_string[i] == '\0') {
+                break;
+            }
+            write(logfile,&pid_string[i],sizeof(char));
+        }
+
+        //write the time
+        for (int i = 0; i < MAX_STR_SIZE; i++) {
+            if (time_string[i] == '\0') {
+                break;
+            }
+            write(logfile,&time_string[i],sizeof(char));
+        }
+
+        //write the signal string
+        for (int i = 0; i < MAX_STR_SIZE; i++) {
+            if (signal_string[i] == '\0') {
+                break;
+            }
+            write(logfile,&signal_string[i],sizeof(char));
+        }
+
+        close(logfile); 
+    }
+    else {
+        return;
+    }    
 }
 
 //base function not to be used
