@@ -22,78 +22,34 @@
 //     return result;
 // }
 
-char* selectYear(char * data_time){
-    char *year = malloc(5);
-    memcpy(year, &data_time[20], 4);
+char* getParcell(int number, int increment){
+    char* result = malloc(3);
 
-    return year;
-}
-
-char* selectMonth(char * data_time){
-    char month[4];
-    memcpy(month, &data_time[4], 3);
-
-    char* solution = malloc(3);
-
-    switch(month[0]){
-        case 'J': //JANUARY, JUNE AND JULY
-            if(month[1] == 'a'){
-                solution = "01";
-            }
-            else if(month[2] == 'n'){
-                solution = "06";
-            }
-            else solution = "07";
-            break;
-        case 'F': //FEBRUARY
-            solution = "02";
-            break;
-        case 'M': //MARCH AND MAY
-            if(month[2] == 'r'){
-                solution = "03";
-            }
-            else solution = "04";
-            break;
-        case 'A': //APRIL AND AUGUST
-            if(month[1] == 'p'){
-                solution = "04";
-            }
-            else solution = "08";
-            break;
-        case 'S': //SEPTEMBER
-            solution = "09";
-            break;
-        case 'O': //OCTOBER
-            solution = "10";
-            break;
-        case 'N': //NOVEMBER
-            solution = "11";
-            break;
-        case 'D': //DECEMBER
-            solution = "12";
-            break;
+    if(increment == 2 && number == 60){
+        sprintf(result, "00");
+        return result;
     }
-    return solution;
+
+    if(number > 9){
+        sprintf(result, "%d", number + increment);
+    }
+    else sprintf(result, "0%d", number + increment);
+
+    return result;
 }
 
-char* selectDay(char * data_time){
-    char *day = malloc(3);
-    memcpy(day, &data_time[8], 2);
-
-    return day;
-}
-
-char* selectHour(char * data_time){
-    char *hour = malloc(9);
-    memcpy(hour, &data_time[11], 8);
-
-    return hour;
-}
-
-char* getDate(char* date_time){
+char* getDate(time_t * date_time){
     char* info = malloc(20);
 
-    sprintf(info, "%s-%s-%sT%s", selectYear(date_time), selectMonth(date_time), selectDay(date_time), selectHour(date_time));
+    struct tm *dates = gmtime(date_time);
+
+    sprintf(info, "%d-%s-%sT%s:%s:%s", 
+        dates->tm_year + 1900, 
+        getParcell(dates->tm_mon, 1), 
+        getParcell(dates->tm_mday, 0),
+        getParcell(dates->tm_hour, 0),
+        getParcell(dates->tm_min, 0),
+        getParcell(dates->tm_sec, 2));
 
     return info;
 }
@@ -115,12 +71,24 @@ char* selectPermissions(mode_t mode){
     return aux;
 }
 
+void fixInfo(char * info){
+    for(int i = 0; i < strlen(info); i++){
+        if(info[i] == ':'){
+            info[i] = ',';
+        }
+        else if(info[i] == ','){
+            info[i] = '\0';
+            info = realloc(info, i);
+        }
+    }
+}
+
 //file analysis functions
 char * getFileInfo(char * file_name){ //1,2,3,4,5,6
     int pid;
-    char * info;
+    char * info = calloc(1, 1);
     int pipe_des[2];
-    char * buffer;
+    char buffer[MAX_BUF];
 
     if(pipe(pipe_des) != 0){
       perror("Failed to open pipe descriptors\n");  
@@ -133,18 +101,23 @@ char * getFileInfo(char * file_name){ //1,2,3,4,5,6
         close(pipe_des[0]);
 
         dup2(pipe_des[1], STDOUT_FILENO);
-        
-        execlp("file", file_name, NULL);
+
+        execlp("file", "file", file_name, NULL);
     }
     else{
         close(pipe_des[1]);
-        
-        while(read(pipe_des[0], buffer, MAX_BUF) > 0){
-            info = realloc(info, strlen(buffer) + strlen(info) + 1);
+
+        int n;
+
+        while((n = read(pipe_des[0], buffer, MAX_BUF - 1)) > 0){
+            buffer[n] = '\0';
+            info = realloc(info, strlen(buffer) + strlen(info));
             strcat(info, buffer);
         }
     }
     
+    fixInfo(info);
+
     return info;
 }
 
@@ -155,11 +128,11 @@ char * getFileStatus(char* file_name){
 
     char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
     
-    sprintf(info, ", %ld, %s, %s, %s", 
+    sprintf(info, "%ld, %s, %s, %s", 
         statbuf.st_size, 
         selectPermissions(statbuf.st_mode), 
-        getDate(ctime(&statbuf.st_atime)), 
-        getDate(ctime(&statbuf.st_mtime)));
+        getDate(&statbuf.st_atime), 
+        getDate(&statbuf.st_mtime));
 
     return info;
 }
