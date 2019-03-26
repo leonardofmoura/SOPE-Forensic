@@ -1,5 +1,8 @@
 #include <file_forensic.h>
 
+#define DATE_TIME_SIZE      19
+#define PERMISSIONS_SIZE    9
+#define COMMA_SPACE_SIZE    2
 //7-md5sum hash
 //8-sha1sum hash       //all of these in hexadecimal
 //9-sha256sum hash
@@ -98,15 +101,16 @@ char* getDate(char* date_time){
 char* selectPermissions(mode_t mode){
     char* aux = malloc(10);
 
-    sprintf(aux, (mode & S_IRUSR) ? "r" : "-");
-    sprintf(aux, (mode & S_IWUSR) ? "w" : "-");
-    sprintf(aux, (mode & S_IXUSR) ? "x" : "-");
-    sprintf(aux, (mode & S_IRGRP) ? "r" : "-");
-    sprintf(aux, (mode & S_IWGRP) ? "w" : "-");
-    sprintf(aux, (mode & S_IXGRP) ? "x" : "-");
-    sprintf(aux, (mode & S_IROTH) ? "r" : "-");
-    sprintf(aux, (mode & S_IWOTH) ? "w" : "-");
-    sprintf(aux, (mode & S_IXOTH) ? "x" : "-");
+    sprintf(aux, "%c%c%c%c%c%c%c%c%c", 
+        (mode & S_IRUSR) ? 'r' : '-', 
+        (mode & S_IWUSR) ? 'w' : '-', 
+        (mode & S_IXUSR) ? 'x' : '-', 
+        (mode & S_IRGRP) ? 'r' : '-', 
+        (mode & S_IWGRP) ? 'w' : '-', 
+        (mode & S_IXGRP) ? 'x' : '-', 
+        (mode & S_IROTH) ? 'r' : '-', 
+        (mode & S_IWOTH) ? 'w' : '-', 
+        (mode & S_IXOTH) ? 'x' : '-');
 
     return aux;
 }
@@ -128,9 +132,7 @@ char * getFileInfo(char * file_name){ //1,2,3,4,5,6
         //child send info
         close(pipe_des[0]);
 
-        if(dup2(pipe_des[1], STDOUT_FILENO) != 0){
-            perror("Failed dup2\n");
-        }
+        dup2(pipe_des[1], STDOUT_FILENO);
         
         execlp("file", file_name, NULL);
     }
@@ -151,27 +153,13 @@ char * getFileStatus(char* file_name){
 
     lstat(file_name, &statbuf);
 
-    char* info;
+    char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
     
-    char* date_time = malloc(20);
+    sprintf(info, ", %ld, %s, %s, %s", 
+        statbuf.st_size, 
+        selectPermissions(statbuf.st_mode), 
+        getDate(ctime(&statbuf.st_atime)), 
+        getDate(ctime(&statbuf.st_mtime)));
 
-    sprintf(info, ", %ld,", statbuf.st_size);
-
-    sprintf(info, " %s,", selectPermissions(statbuf.st_mode));
-
-    strcpy(date_time, ctime(&statbuf.st_atime));
-
-    sprintf(info, ", %s,", getDate(date_time));
-
-    strcpy(date_time, ctime(&statbuf.st_mtime));
-
-    sprintf(info, ", %s,", getDate(date_time));
-
-    char* result = malloc(strlen(info));
-
-    strcpy(result, info);
-
-    free(info);
-    
-    return result;
+    return info;
 }
