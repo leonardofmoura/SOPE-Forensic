@@ -33,8 +33,8 @@ void display_info(struct Contents * contents) {
     //check if the hash option has been selected
     if(contents->hashes!= NULL) {
         int i =0;
-        while(hashes[i] != NULL) {
-            printf("Hash nº%d: %s\n",i+1,hashes[i]);
+        while(contents->hashes[i] != NULL) {
+            printf("Hash nº%d: %s\n",i+1,contents->hashes[i]);
             i++;
         }
     }
@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
     
     //parse the command given
     struct Contents cont;
+    memset(&cont,0,sizeof(cont));
     //cont = malloc(sizeof(struct Contents)); // [file,folder,hashes,outfile,log]   
     if(input_parser(argc,argv,&cont) != 0) {
         printf("Invalid option or wrong number of arguments.\n");

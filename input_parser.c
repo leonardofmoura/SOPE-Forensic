@@ -6,7 +6,6 @@
 int input_parser(int n_args, char* argv[],struct Contents *contents) {
     
     contents->log_check = "false";
-
     //number of arguments needed to make up a valid command
     int needed=2;
 
