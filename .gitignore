@@ -56,5 +56,8 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+#test file for the verbose
+logfile.txt
+
 .depend
 .vscode/

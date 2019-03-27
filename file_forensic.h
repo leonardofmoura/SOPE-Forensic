@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-#define MAX_BUF     1000
+#define MAX_BUF     512
 
 char * concatenate(char * old, char * new);
 char * getFileInfo(char * file_name);
