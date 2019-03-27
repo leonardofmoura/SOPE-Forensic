@@ -86,6 +86,7 @@ int main(int argc, char* argv[]) {
             return 4;
         }
         dup2(fd,STDOUT_FILENO);
+        close(fd);
     }
 
     //Commented only because it was faulty
@@ -112,17 +113,17 @@ int main(int argc, char* argv[]) {
     for(int i =0; cont.hashes[i] != NULL;i++) {
         
         if(strcmp(cont.hashes[i],"md5") == 0) {
-            md5sum = strtok(md5_sum(cont.file_name)," ");
+            md5_sum(cont.file_name,md5sum);
             printf("MD5 sum: %s\n",md5sum);
         }
 
         if(strcmp(cont.hashes[i],"sha1")==0) {
-            sha1sum = strtok(sha1_sum(cont.file_name), " ");
+            sha1_sum(cont.file_name,sha1sum);
             printf("SHA1 sum: %s\n",sha1sum);
         }
 
         if(strcmp(cont.hashes[i],"sha256")==0) {
-            sha256sum = strtok(sha256_sum(cont.file_name)," ");
+            sha256_sum(cont.file_name,sha256sum);
             printf("SHA256 sum: %s\n",sha256sum);
         }        
     }
@@ -137,7 +138,7 @@ int main(int argc, char* argv[]) {
         free(md5sum);
         free(sha1sum);
         free(sha256sum);
-        close(fd);
+        
     }
     return 0;
 }
