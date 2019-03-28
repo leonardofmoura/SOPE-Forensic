@@ -1,5 +1,6 @@
-#define MAX_BUFFER 256
+#pragma once
 
+#define MAX_BUFFER 256
 
 void md5_sum(const char* file_name,char * hash);
 

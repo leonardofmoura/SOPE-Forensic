@@ -8,6 +8,7 @@
 #include <string.h>
 #include <input_parser.h>
 #include <hash_functions.h>
+#include <recursive_forensic.h>
 
 //include de ficheiros de fora
 #include "file_forensic.h"
@@ -87,6 +88,16 @@ int main(int argc, char* argv[]) {
         }
         dup2(fd,STDOUT_FILENO);
         close(fd);
+    }
+
+    if(cont.dir_name != NULL) {
+        int return_value = 0;
+        if((return_value = recursive_forensic(cont.dir_name,&cont)) !=0) {
+            printf("Kaboom! Abandon Ship!\n");
+            perror(cont.dir_name);
+            return return_value;
+        }
+        return 0;
     }
 
     //Commented only because it was faulty

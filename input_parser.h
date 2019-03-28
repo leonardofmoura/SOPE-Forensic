@@ -1,3 +1,6 @@
+#pragma once
+
+#define MAX_BUFFER 256
 
 struct Contents {
 
