@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <recursive_forensic.h>
+#include <file_forensic.h>
 
 int recursive_forensic(const char* dir_path, struct Contents* content) {
     DIR* dir_ptr;
@@ -32,12 +33,12 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
         strcat(path,"/");
         strcat(path,dentry->d_name);
         
-        if(lstat(dentry->d_name,&stat_entry) < 0) {
+        if (lstat(dentry->d_name,&stat_entry) < 0) {
             perror("Failed lstat() call.");
             return 2;
         }
 
-        if(S_ISREG(stat_entry.st_mode)) {
+        if (S_ISREG(stat_entry.st_mode)) {
             pid_t pid = fork();
             if( pid < 0) {
                 perror("Fork failed.");
@@ -46,8 +47,11 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
 
             if( pid == 0) {
                 //log action
-                //finish with analysing the file
-                printf("File: %s\n",dentry->d_name);
+                if(file_forensic(dentry->d_name,content->hashes) !=0) {
+                    perror(content->file_name);
+                    return 4;
+                }
+                printf("FILE ANALYSED: %s\n",dentry->d_name);
                 exit(0);
             }
 
@@ -66,17 +70,17 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
             pid_t pid = fork();
             if(pid < 0) {
                 perror("Fork failed.");
-                return 4;
+                return 5;
             }
 
             if(pid == 0) {
                 recursive_forensic(dentry->d_name,content);
                 //log action
+                printf("DIRECTORY ANALYSED: %s\n",dentry->d_name);
                 exit(0);
             }
             else {
                 
-                printf("DIRECTORY ANALISED: %s\n",dentry->d_name);
                 proc_ongoing++;
             }
         }
@@ -87,7 +91,7 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
     while(proc_ongoing > 0) {
         result = wait(&status);
         if(result <0) {
-            return 5;
+            return 6;
         }
         else {
             if(status == 0) {
