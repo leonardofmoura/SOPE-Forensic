@@ -94,6 +94,7 @@ int main(int argc, char* argv[]) {
             perror(cont.dir_name);
             return return_value;
         }
+        printf("Return value recursive: %d\n",return_value);
         return 0;
     }
 
@@ -118,6 +119,5 @@ int main(int argc, char* argv[]) {
             return 5;
         }
     }
-
     return 0;
 }

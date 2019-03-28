@@ -18,7 +18,7 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
     int proc_ongoing =0;
     
     char path[2*MAX_BUFFER];
-    getcwd(path,MAX_BUFFER);
+    getcwd(path,MAX_BUFFER);            //get the path to the directory to analyse
     strcat(path,"/");
     strcat(path,dir_path);
     chdir(path);
@@ -52,7 +52,8 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
                     return 4;
                 }
                 printf("FILE ANALYSED: %s\n",dentry->d_name);
-                exit(0);
+                closedir(dir_ptr);
+                return 0;
             }
 
             else {
@@ -77,7 +78,8 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
                 recursive_forensic(dentry->d_name,content);
                 //log action
                 printf("DIRECTORY ANALYSED: %s\n",dentry->d_name);
-                exit(0);
+                closedir(dir_ptr);
+                return 0;
             }
             else {
                 
@@ -87,6 +89,9 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
     }
 
     closedir(dir_ptr);
+
+    //wait for all the processes ongoing to finish
+    //and report any process that end badly
     int status, result;
     while(proc_ongoing > 0) {
         result = wait(&status);
