@@ -48,20 +48,45 @@ void get_command_string(struct Contents* contents, char command_string[]) {
     if (contents->dir_name != NULL) {
         command_string = strcat(command_string,"-r ");
     }
-    if (contents->hashes[0] != NULL) {
+    // if (contents->hashes[0] != NULL) {
+    //     command_string = strcat(command_string,"-h ");
+    //     for (int i = 0; i < 4; i++) {
+    //         if (contents->hashes[i] == NULL) {
+    //             break;
+    //         }
+    //         else if (strcmp(contents->hashes[i],"sha256") == 0) {
+    //             command_string = strcat(command_string,contents->hashes[i]);   
+    //             command_string = strcat(command_string," "); 
+    //         }
+    //         else {
+    //             command_string = strcat(command_string,contents->hashes[i]);
+    //             command_string = strcat(command_string,",");
+    //         }
+    //     }
+    // }
+    if (contents->md5_hash || contents->sha1_hash || contents->sha256_hash) {
         command_string = strcat(command_string,"-h ");
-        for (int i = 0; i < 4; i++) {
-            if (contents->hashes[i] == NULL) {
-                break;
-            }
-            else if (strcmp(contents->hashes[i],"sha256") == 0) {
-                command_string = strcat(command_string,contents->hashes[i]);   
-                command_string = strcat(command_string," "); 
-            }
-            else {
-                command_string = strcat(command_string,contents->hashes[i]);
+        if (contents->md5_hash) {
+            command_string = strcat(command_string,"md5");;
+            if (contents->sha1_hash || contents->sha256_hash) {
                 command_string = strcat(command_string,",");
             }
+            else {
+                command_string = strcat(command_string," ");
+            }
+        }
+        if (contents->sha1_hash) {
+            command_string = strcat(command_string,"sha1");
+            if (contents->sha256_hash) {
+                command_string = strcat(command_string,",");
+            }
+            else {
+                command_string = strcat(command_string," ");
+            }
+        }
+        if (contents->sha256_hash) {
+            command_string = strcat(command_string,"sha256");
+            command_string = strcat(command_string," ");
         }
     }
     if (contents->outfile != NULL) {
@@ -223,47 +248,3 @@ void verbose_signal(pid_t pid, int sig) {
         return;
     }    
 }
-
-//base function not to be used
-void file_logger(pid_t pid, enum log_event ev) {
-    init_time();
-
-    //initialize log file
-    char* logfilename = getenv("LOGFILENAME");
-    int logfile = open(logfilename, O_WRONLY | O_APPEND); 
-
-    //burn some time
-    // srand(time(NULL));
-    // int j = 35778;
-    // int lol = 0;
-    // while (lol != j) {
-    //     lol = rand();
-    // }
-
-    //get the time 
-    char time_string[MAX_STR_SIZE];
-    calculate_elapsed_time(time_string);
-
-    //convert the pid to string
-    char pid_string[MAX_STR_SIZE];
-    pid_to_string(pid, pid_string);
-
-    //write the pid
-    for (int i = 0; i < MAX_STR_SIZE; i++) {
-        if (pid_string[i] == '\0') {
-            break;
-        }
-        write(logfile,&pid_string[i],sizeof(char));
-    }
-
-    //write the time
-    for (int i = 0; i < MAX_STR_SIZE; i++) {
-        if (time_string[i] == '\0') {
-            break;
-        }
-        write(logfile,&time_string[i],sizeof(char));
-    }
-
-    close(logfile);
-}
-
