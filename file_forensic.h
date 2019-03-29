@@ -16,6 +16,6 @@ char * concatenate(char * old, char * new);
 char * getFileInfo(char * file_name);
 char * getFileStatus(char* file_name);
 
-int file_forensic(const char* file_name, char* hashes[]);
+int file_forensic(const char* file_name, struct Contents* contents);
 
 
