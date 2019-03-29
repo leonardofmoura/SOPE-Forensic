@@ -138,19 +138,8 @@ char * getFileStatus(char* file_name){
     return info;
 }
 
-int file_forensic(const char* file_name, char* hashes[]) {
-    /*
-    char *result = getFileInfo(cont.file_name);
-    printf("%s, ", result);
-
-    free(result);
-
-    result = getFileStatus(cont.file_name);
-    printf("%s", result);
-
-    free(result);
-    */
-    
+char* getFileHash(const char* file_name, char* hashes[]){
+    char* result;
     char* md5sum = malloc(MAX_BUFFER);
     char* sha1sum = malloc(MAX_BUFFER);
     char* sha256sum = malloc(MAX_BUFFER);
@@ -159,22 +148,50 @@ int file_forensic(const char* file_name, char* hashes[]) {
         
         if(strcmp(hashes[i],"md5") == 0) {
             md5_sum(file_name,md5sum);
-            printf("MD5 sum: %s\n",md5sum);
+            result = realloc(result, strlen(md5sum) + COMMA_SPACE_SIZE + strlen(result));
+            strcat(result, ", ");
+            strcat(result, md5sum);
         }
 
         if(strcmp(hashes[i],"sha1")==0) {
-            sha1_sum(file_name,sha1sum);
-            printf("SHA1 sum: %s\n",sha1sum);
+            sha1_sum(file_name, sha1sum);
+            result = realloc(result, strlen(sha1sum) + COMMA_SPACE_SIZE + strlen(result));
+            strcat(result, ", ");
+            strcat(result, sha1sum);
         }
 
         if(strcmp(hashes[i],"sha256")==0) {
-            sha256_sum(file_name,sha256sum);
-            printf("SHA256 sum: %s\n",sha256sum);
+            sha256_sum(file_name, sha256sum);
+            result = realloc(result, strlen(sha256sum) + COMMA_SPACE_SIZE + strlen(result));
+            strcat(result, ", ");
+            strcat(result, sha256sum);
         }        
     } 
-    
+
     free(md5sum);
     free(sha1sum);
     free(sha256sum);
-    return 0;
+
+    return result;
+}
+
+char* file_forensic(const char* file_name, char* hashes[]) {  
+    char *result = getFileInfo(file_name);
+    char *aux = getFileStatus(file_name);
+
+    result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+    strcat(result, ", ");
+    strcat(result, aux);
+    
+    aux = getFileHash(file_name, hashes);
+
+    if(aux != NULL){
+        result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+        strcat(result, ", ");
+        strcat(result, aux);
+    }
+
+    free(aux);
+    
+    return result;
 }
