@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #define MAX_BUFFER 256
 
 struct Contents {
@@ -10,7 +12,11 @@ struct Contents {
 
     char* outfile;
 
-    char* hashes[4];
+    bool md5_hash;
+
+    bool sha1_hash;
+
+    bool sha256_hash;
 
     char* log_check;
 
@@ -18,4 +24,4 @@ struct Contents {
 
 int input_parser(int n_args, char* argv[],struct Contents *contents);
 
-int hashes_parser(char* hash_string, char* hashes []);
+void hashes_parser(char* hash_string, struct Contents *contents);

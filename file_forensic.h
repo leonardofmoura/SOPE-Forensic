@@ -16,5 +16,4 @@ char * getFileInfo(const char * file_name);
 char* selectPermissions(mode_t mode);
 char * getFileStatus(const char* file_name);
 char* getFileHash(const char* file_name, char* hashes[]);
-char* file_forensic(const char* file_name, char* hashes[]);
-
+int file_forensic(const char* file_name, struct Contents* contents);

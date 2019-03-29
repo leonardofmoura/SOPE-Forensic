@@ -32,13 +32,18 @@ void display_info(struct Contents * contents) {
     }
 
     //check if the hash option has been selected
-    if(contents->hashes!= NULL) {
-        int i =0;
-        while(contents->hashes[i] != NULL) {
-            printf("Hash nº%d: %s\n",i+1,contents->hashes[i]);
-            i++;
-        }
+    if(contents->md5_hash) {
+        printf("MD5 selected.\n");
     }
+
+    if(contents->sha1_hash) {
+        printf("SHA1 selected.\n");
+    }
+
+    if(contents->sha256_hash) {
+        printf("SHA256 selected.\n");
+    }
+
 
     //check if the outfile option has been selected
     if(contents->outfile != NULL) {
@@ -73,7 +78,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Just display the info collected after parsing;
-    //display_info(&cont);
+    display_info(&cont);
 
     int fd;
     if(cont.outfile != NULL) {
@@ -94,7 +99,6 @@ int main(int argc, char* argv[]) {
             perror(cont.dir_name);
             return return_value;
         }
-        printf("Return value recursive: %d\n",return_value);
         return 0;
     }
 

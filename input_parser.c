@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <input_parser.h>
+#include <hash_functions.h>
 
 //input parser function
 int input_parser(int n_args, char* argv[],struct Contents *contents) {
@@ -23,9 +24,7 @@ int input_parser(int n_args, char* argv[],struct Contents *contents) {
                         needed++;
                         break;
                     case 'h':
-                        if(hashes_parser(argv[i+1],contents->hashes) != 0) {
-                            return -1;
-                        }
+                        hashes_parser(argv[i+1],contents);
                         needed +=2;
                         break;
                     case 'v':
@@ -53,26 +52,17 @@ int input_parser(int n_args, char* argv[],struct Contents *contents) {
     return 0;
 }
 
-int hashes_parser(char* hash_string, char* hashes []) {
-    hashes[0] = strtok(hash_string,","); //break the string into tokens
-    int i =1;
-    while((hashes[i] = strtok(NULL,",")) != NULL) {
-        i++;
-    }
-    hashes[3] = NULL;
+void hashes_parser(char* hash_string,struct Contents* contents) {
     
-    i = 0;
-    while(hashes[i] != NULL) {
-        if((strcmp(hashes[i],"md5") != 0) &&
-        (strcmp(hashes[i],"sha1") != 0) &&
-        (strcmp(hashes[i],"sha256") != 0)) {
-            return -1;
-        }
-        i++;
+    if(strstr(hash_string,"md5") != NULL) {
+        contents->md5_hash = true;
     }
-    for(i = 0; i<4 ;i++) {
-        if(hashes[i] == NULL)
-            break;
+
+    if(strstr(hash_string,"sha1") != NULL) {
+        contents->sha1_hash = true;
     }
-    return 0;
+    
+    if(strstr(hash_string,"sha256") != NULL) {
+        contents->sha256_hash = true;
+    }
 }
