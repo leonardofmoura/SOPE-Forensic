@@ -10,6 +10,7 @@
 #include <file_logging.h>
 //include de ficheiros de fora
 #include <hash_functions.h>
+#include <recursive_forensic.h>
 
 //include de ficheiros de fora
 #include "file_forensic.h"
@@ -33,13 +34,18 @@ void display_info(struct Contents * contents) {
     }
 
     //check if the hash option has been selected
-    if(contents->hashes!= NULL) {
-        int i =0;
-        while(contents->hashes[i] != NULL) {
-            printf("Hash nº%d: %s\n",i+1,contents->hashes[i]);
-            i++;
-        }
+    if(contents->md5_hash) {
+        printf("MD5 selected.\n");
     }
+
+    if(contents->sha1_hash) {
+        printf("SHA1 selected.\n");
+    }
+
+    if(contents->sha256_hash) {
+        printf("SHA256 selected.\n");
+    }
+
 
     //check if the outfile option has been selected
     if(contents->outfile != NULL) {
@@ -56,8 +62,6 @@ void display_info(struct Contents * contents) {
     else {
         printf("Not logging execution events.\n");
     }
-
-    return;
 }
 
 int main(int argc, char* argv[]) {
@@ -85,12 +89,22 @@ int main(int argc, char* argv[]) {
     if(cont.outfile != NULL) {
         fd = open(cont.outfile, O_WRONLY | O_CREAT,0644);
         if(fd == -1) {
-        printf("What is foin\n");
             perror(cont.outfile);
             close(fd);
             return 4;
         }
+        printf("Data saved on file %s\n",cont.outfile);
         dup2(fd,STDOUT_FILENO);
+        close(fd);
+    }
+
+    if(cont.dir_name != NULL) {
+        int return_value = 0;
+        if((return_value = recursive_forensic(cont.dir_name,&cont)) !=0) {
+            perror(cont.dir_name);
+            return return_value;
+        }
+        return 0;
     }
 
     //Commented only because it was faulty
@@ -108,41 +122,11 @@ int main(int argc, char* argv[]) {
         free(result);
     }*/
 
-
-    //TO CLEAN UP
-    char* md5sum = malloc(MAX_BUFFER);
-    char* sha1sum = malloc(MAX_BUFFER);
-    char* sha256sum = malloc(MAX_BUFFER);
-    
-    for(int i =0; cont.hashes[i] != NULL;i++) {
-        
-        if(strcmp(cont.hashes[i],"md5") == 0) {
-            md5sum = strtok(md5_sum(cont.file_name)," ");
-            printf("MD5 sum: %s\n",md5sum);
+    if(cont.file_name != NULL) {
+        if(file_forensic(cont.file_name,&cont) !=0) {
+            perror(cont.file_name);
+            return 5;
         }
-
-        if(strcmp(cont.hashes[i],"sha1")==0) {
-            sha1sum = strtok(sha1_sum(cont.file_name), " ");
-            printf("SHA1 sum: %s\n",sha1sum);
-        }
-
-        if(strcmp(cont.hashes[i],"sha256")==0) {
-            sha256sum = strtok(sha256_sum(cont.file_name)," ");
-            printf("SHA256 sum: %s\n",sha256sum);
-        }        
-    }
-    
-
-
-
-
-
-    //free alocated memory
-    {   
-        free(md5sum);
-        free(sha1sum);
-        free(sha256sum);
-        close(fd);
     }
     return 0;
 }

@@ -1,4 +1,5 @@
 #include <file_forensic.h>
+#include <hash_functions.h>
 
 #define DATE_TIME_SIZE      19
 #define PERMISSIONS_SIZE    9
@@ -135,4 +136,42 @@ char * getFileStatus(char* file_name){
         getDate(&statbuf.st_mtime));
 
     return info;
+}
+
+int file_forensic(const char* file_name, struct Contents* contents) {
+    /*
+    char *result = getFileInfo(cont.file_name);
+    printf("%s, ", result);
+
+    free(result);
+
+    result = getFileStatus(cont.file_name);
+    printf("%s", result);
+
+    free(result);
+    */
+    
+    char* md5sum = malloc(MAX_BUFFER);
+    char* sha1sum = malloc(MAX_BUFFER);
+    char* sha256sum = malloc(MAX_BUFFER);
+    
+    if(contents->md5_hash) {
+        md5_sum(file_name,md5sum);
+        printf("MD5 sum: %s\n",md5sum);
+    }
+
+    if(contents->sha1_hash) {
+        sha1_sum(file_name,sha1sum);
+        printf("SHA1 sum: %s\n",sha1sum);
+    }
+
+    if(contents->sha256_hash) {
+        sha256_sum(file_name,sha256sum);
+        printf("SHA256 sum: %s\n",sha256sum);
+    }
+    
+    free(md5sum);
+    free(sha1sum);
+    free(sha256sum);
+    return 0;
 }

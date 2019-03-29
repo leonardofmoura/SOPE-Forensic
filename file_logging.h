@@ -3,12 +3,6 @@
 
 #define MAX_STR_SIZE 256
 
-enum log_event {
-    COMMAND = 0,
-    SIGNAL,
-    ANALIZED
-};
-
 //stores the time of the initialization of the program
 void init_time();
 
