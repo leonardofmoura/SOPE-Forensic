@@ -1,3 +1,5 @@
+#ifndef _INPUT_PARSER_H_
+#define _INPUT_PARSER_H_
 
 struct Contents {
 
@@ -16,3 +18,5 @@ struct Contents {
 int input_parser(int n_args, char* argv[],struct Contents *contents);
 
 int hashes_parser(char* hash_string, char* hashes []);
+
+#endif

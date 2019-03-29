@@ -21,13 +21,16 @@ void pid_to_string(pid_t pid, char pid_string[]);
 //put the compiled string in analized_string
 void get_analized_string(char filename[], char analized_string[]);
 
+//assemble the command typed and put it in the command_string
+void get_command_string(struct Contents* contents, char command_string[]);
+
+//verbose the typed command
+void verbose_command(pid_t pid, struct Contents* contents);
+
 //verbose an analized file
 void verbose_analized(pid_t pid, char filename[]);
 
 //verbose a received signal
 void verbose_signal(pid_t pid, int sig);
-
-//base function not to be used
-void file_logger(pid_t pid, enum log_event ev);
 
 #endif

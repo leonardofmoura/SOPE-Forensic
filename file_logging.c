@@ -6,7 +6,8 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <string.h>
-#include <file_logging.h>
+#include "input_parser.h"
+#include "file_logging.h"
 
 static time_t starting_time;
 static bool verbose = false;
@@ -41,8 +42,42 @@ void get_signal_string(int sig, char signal_string[]) {
     sprintf(signal_string,"SIGNAL : %s\n", strsignal(sig));
 }
 
-//work in progressvoid get_analized_string(char filename[], char analized_string[])
-void verbose_command(pid_t pid, char* opts[]) {
+void get_command_string(struct Contents* contents, char command_string[]) {
+    sprintf(command_string,"COMMAND forensic ");
+   
+    if (contents->dir_name != NULL) {
+        command_string = strcat(command_string,"-r ");
+    }
+    if (contents->hashes[0] != NULL) {
+        command_string = strcat(command_string,"-h ");
+        for (int i = 0; i < 4; i++) {
+            if (contents->hashes[i] == NULL) {
+                break;
+            }
+            else if (strcmp(contents->hashes[i],"sha256") == 0) {
+                command_string = strcat(command_string,contents->hashes[i]);   
+                command_string = strcat(command_string," "); 
+            }
+            else {
+                command_string = strcat(command_string,contents->hashes[i]);
+                command_string = strcat(command_string,",");
+            }
+        }
+    }
+    if (contents->outfile != NULL) {
+        command_string = strcat(command_string,"-o ");
+        command_string = strcat(command_string,contents->outfile);
+        command_string = strcat(command_string," ");
+    }
+    if (contents->log_check != NULL) {
+        command_string = strcat(command_string,"-v ");
+    }
+    strcat(command_string,contents->file_name);
+    strcat(command_string,"\n");
+}
+
+//work in progress
+void verbose_command(pid_t pid, struct Contents* contents) {
     if (verbose) {
         //initialize log file
         char* logfilename = getenv("LOGFILENAME");
@@ -55,6 +90,10 @@ void verbose_command(pid_t pid, char* opts[]) {
         //convert the pid to string
         char pid_string[MAX_STR_SIZE];
         pid_to_string(pid, pid_string);
+
+        //assemble the command 
+        char command_string[MAX_STR_SIZE];
+        get_command_string(contents,command_string);
 
         //write the pid
         for (int i = 0; i < MAX_STR_SIZE; i++) {
@@ -72,6 +111,13 @@ void verbose_command(pid_t pid, char* opts[]) {
             write(logfile,&time_string[i],sizeof(char));
         }
 
+        //write the command 
+        for (int i = 0; i < MAX_STR_SIZE; i++) {
+            if (command_string[i] == '\0') {
+                break;
+            }
+            write(logfile,&command_string[i],sizeof(char));
+        }
         close(logfile);
     }
     else {

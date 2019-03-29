@@ -49,7 +49,8 @@ void display_info(struct Contents * contents) {
     //check if the execution log option has been selected
     if(strcmp(contents->log_check,"true")== 0) {
         init_time();
-        verbose_signal(getpid(),SIGINT);
+        char random[MAX_STR_SIZE];
+        verbose_command(getpid(),contents);
         printf("Logging execution events.\n");
     } 
     else {
