@@ -4,24 +4,10 @@
 #define DATE_TIME_SIZE      19
 #define PERMISSIONS_SIZE    9
 #define COMMA_SPACE_SIZE    2
-//7-md5sum hash
-//8-sha1sum hash       //all of these in hexadecimal
-//9-sha256sum hash
 
-// char * concatenate(char * old, char * new){   
-//     char * result = malloc(strlen(old) + strlen(new) + 1);
+#define SUCCESS     0
+#define FAIL        1
 
-//     strcpy(result, old);
-
-//     result += strlen(old);
-
-//     strcpy(result, new);
-
-//     free(old);
-//     free(new);
-
-//     return result;
-// }
 
 char* getParcell(int number, int increment){
     char* result = malloc(3);
@@ -77,17 +63,22 @@ void fixInfo(char * info){
         if(info[i] == ':'){
             info[i] = ',';
         }
-        else if(info[i] == ','){
+        else if(info[i] == ' ') {
+            memmove(&info[i], &info[i + 1], strlen(info) - i);
+            i++;
+        }
+        else if(info[i] == ',' || info[i] == '\n'){
             info[i] = '\0';
             info = realloc(info, i);
+            return;
         }
     }
 }
 
 //file analysis functions
-char * getFileInfo(char * file_name){ //1,2,3,4,5,6
+void getFileInfo(const char * file_name, char* info){ //1,2,3,4,5,6
     int pid;
-    char * info = calloc(1, 1);
+    // char * info = calloc(1, 1);
     int pipe_des[2];
     char buffer[MAX_BUF];
 
@@ -111,67 +102,72 @@ char * getFileInfo(char * file_name){ //1,2,3,4,5,6
         int n;
 
         while((n = read(pipe_des[0], buffer, MAX_BUF - 1)) > 0){
-            buffer[n] = '\0';
-            info = realloc(info, strlen(buffer) + strlen(info));
+            // buffer[n] = '\0';
+            // info = realloc(info, n + strlen(info));
             strcat(info, buffer);
         }
     }
     
     fixInfo(info);
 
-    return info;
+    // return info;
 }
 
-char * getFileStatus(char* file_name){
+void getFileStatus(const char* file_name, char* info){
     struct stat statbuf;
 
     lstat(file_name, &statbuf);
 
-    char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
-    
-    sprintf(info, "%ld, %s, %s, %s", 
+    char aux[sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1];
+    sprintf(aux, ",%ld,%s,%s,%s", 
+    // char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
+
         statbuf.st_size, 
         selectPermissions(statbuf.st_mode), 
         getDate(&statbuf.st_atime), 
         getDate(&statbuf.st_mtime));
 
-    return info;
+    strcat(info, aux);
+    // return info;
 }
 
-int file_forensic(const char* file_name, struct Contents* contents) {
-    /*
-    char *result = getFileInfo(cont.file_name);
-    printf("%s, ", result);
-
-    free(result);
-
-    result = getFileStatus(cont.file_name);
-    printf("%s", result);
-
-    free(result);
-    */
-    
-    char* md5sum = malloc(MAX_BUFFER);
-    char* sha1sum = malloc(MAX_BUFFER);
-    char* sha256sum = malloc(MAX_BUFFER);
-    
+void getFileHash(const char* file_name, struct Contents* contents, char* result){    
     if(contents->md5_hash) {
-        md5_sum(file_name,md5sum);
-        printf("MD5 sum: %s\n",md5sum);
+        strcat(result, ",");
+        char aux[100];
+        sha1_sum(file_name, aux);
+        // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+        strcat(result, ",");
+        strcat(result, aux);
     }
 
     if(contents->sha1_hash) {
-        sha1_sum(file_name,sha1sum);
-        printf("SHA1 sum: %s\n",sha1sum);
+        char aux[100];
+        sha1_sum(file_name,aux);
+        // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+        strcat(result, ",");
+        strcat(result, aux);
     }
 
     if(contents->sha256_hash) {
-        sha256_sum(file_name,sha256sum);
-        printf("SHA256 sum: %s\n",sha256sum);
+        char aux[100];
+        sha256_sum(file_name,aux);
+        // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+        strcat(result, ",");
+        strcat(result, aux);
     }
-    
-    free(md5sum);
-    free(sha1sum);
-    free(sha256sum);
-    return 0;
+}
+
+int file_forensic(const char* file_name, struct Contents* contents, char* result) {   
+    getFileInfo(file_name, result);
+
+    getFileStatus(file_name, result);
+
+    // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+    // strcat(result, ", ");
+    // strcat(result, aux);
+
+    getFileHash(file_name, contents, result);
+
+    return SUCCESS;
 }
