@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
     if(cont.file_name != NULL) {
         char* result = file_forensic(cont.file_name, cont.hashes);
 
-        printf(result);
+        printf("%s\n", result);
     }
 
     return 0;

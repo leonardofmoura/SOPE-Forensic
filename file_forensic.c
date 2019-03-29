@@ -85,7 +85,7 @@ void fixInfo(char * info){
 }
 
 //file analysis functions
-char * getFileInfo(char * file_name){ //1,2,3,4,5,6
+char * getFileInfo(const char * file_name){ //1,2,3,4,5,6
     int pid;
     char * info = calloc(1, 1);
     int pipe_des[2];
@@ -122,7 +122,7 @@ char * getFileInfo(char * file_name){ //1,2,3,4,5,6
     return info;
 }
 
-char * getFileStatus(char* file_name){
+char * getFileStatus(const char* file_name){
     struct stat statbuf;
 
     lstat(file_name, &statbuf);
@@ -140,10 +140,8 @@ char * getFileStatus(char* file_name){
 
 char* getFileHash(const char* file_name, char* hashes[]){
     char* result;
-    char* md5sum = malloc(MAX_BUFFER);
-    char* sha1sum = malloc(MAX_BUFFER);
-    char* sha256sum = malloc(MAX_BUFFER);
-    
+    char* aux;
+
     for(int i =0; hashes[i] != NULL;i++) {
         
         if(strcmp(hashes[i],"md5") == 0) {
