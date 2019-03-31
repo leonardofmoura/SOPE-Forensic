@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Just display the info collected after parsing;
-    display_info(&cont);
+    //display_info(&cont);
 
     int fd;
     if(cont.outfile != NULL) {
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
     }
 
     if(cont.file_name != NULL) {
-        char* result = file_forensic(cont.file_name, cont.hashes);
+        char* result = file_forensic(cont.file_name, &cont);
 
         printf("%s\n", result);
     }

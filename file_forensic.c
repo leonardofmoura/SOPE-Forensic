@@ -81,6 +81,10 @@ void fixInfo(char * info){
             info[i] = '\0';
             info = realloc(info, i);
         }
+        else if(info[i] == ' ') {
+            memmove(&info[i], &info[i + 1], strlen(info) - i);
+            i++;
+        }
     }
 }
 
@@ -129,7 +133,7 @@ char * getFileStatus(const char* file_name){
 
     char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
     
-    sprintf(info, "%ld, %s, %s, %s", 
+    sprintf(info, "%ld,%s,%s,%s", 
         statbuf.st_size, 
         selectPermissions(statbuf.st_mode), 
         getDate(&statbuf.st_atime), 
@@ -138,29 +142,8 @@ char * getFileStatus(const char* file_name){
     return info;
 }
 
-char* getFileHash(const char* file_name, char* hashes[]){
-    char* result;
-    char* aux;
-int file_forensic(const char* file_name, struct Contents* contents) {
-    /*
-    char *result = getFileInfo(cont.file_name);
-    printf("%s, ", result);
-
-    for(int i =0; hashes[i] != NULL;i++) {
-        
-        if(strcmp(hashes[i],"md5") == 0) {
-            md5_sum(file_name,md5sum);
-            result = realloc(result, strlen(md5sum) + COMMA_SPACE_SIZE + strlen(result));
-            strcat(result, ", ");
-            strcat(result, md5sum);
-        }
-    free(result);
-
-    result = getFileStatus(cont.file_name);
-    printf("%s", result);
-
-    free(result);
-    */
+char* getFileHash(const char* file_name, struct Contents* contents){
+    char* result = malloc(MAX_BUFFER);
     
     char* md5sum = malloc(MAX_BUFFER);
     char* sha1sum = malloc(MAX_BUFFER);
@@ -168,31 +151,20 @@ int file_forensic(const char* file_name, struct Contents* contents) {
     
     if(contents->md5_hash) {
         md5_sum(file_name,md5sum);
-        printf("MD5 sum: %s\n",md5sum);
+        strcat(result,md5sum);
     }
-
-        if(strcmp(hashes[i],"sha1")==0) {
-            sha1_sum(file_name, sha1sum);
-            result = realloc(result, strlen(sha1sum) + COMMA_SPACE_SIZE + strlen(result));
-            strcat(result, ", ");
-            strcat(result, sha1sum);
-        }
     if(contents->sha1_hash) {
         sha1_sum(file_name,sha1sum);
-        printf("SHA1 sum: %s\n",sha1sum);
-    }
-
-        if(strcmp(hashes[i],"sha256")==0) {
-            sha256_sum(file_name, sha256sum);
-            result = realloc(result, strlen(sha256sum) + COMMA_SPACE_SIZE + strlen(result));
-            strcat(result, ", ");
-            strcat(result, sha256sum);
-        }        
+        if(contents->md5_hash)
+            strcat(result,",");
+        strcat(result,sha1sum);
     } 
 
     if(contents->sha256_hash) {
         sha256_sum(file_name,sha256sum);
-        printf("SHA256 sum: %s\n",sha256sum);
+        if(contents->md5_hash || contents->sha1_hash)
+            strcat(result,",");
+        strcat(result,sha256sum);
     }
     
     free(md5sum);
@@ -202,19 +174,19 @@ int file_forensic(const char* file_name, struct Contents* contents) {
     return result;
 }
 
-char* file_forensic(const char* file_name, char* hashes[]) {  
+char* file_forensic(const char* file_name, struct Contents* contents) {  
     char *result = getFileInfo(file_name);
     char *aux = getFileStatus(file_name);
 
     result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-    strcat(result, ", ");
+    strcat(result, ",");
     strcat(result, aux);
     
-    aux = getFileHash(file_name, hashes);
+    aux = getFileHash(file_name, contents);
 
     if(aux != NULL){
         result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-        strcat(result, ", ");
+        strcat(result, ",");
         strcat(result, aux);
     }
 
