@@ -103,9 +103,15 @@ int main(int argc, char* argv[]) {
     }
 
     if(cont.file_name != NULL) {
-        char* result = file_forensic(cont.file_name, &cont);
+        char* result = malloc(MAX_BUF);
+
+        if(file_forensic(cont.file_name, &cont, result) != 0){
+            perror("Forensic Error\n");
+        }
 
         printf("%s\n", result);
+
+        free(result);
     }
 
     return 0;
