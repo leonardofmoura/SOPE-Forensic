@@ -99,16 +99,20 @@ int main(int argc, char* argv[]) {
 
     if(cont.dir_name != NULL) {
         int return_value = 0;
-        if((return_value = recursive_forensic(cont.dir_name,&cont)) !=0) {
+        char* curr_path = calloc(MAX_BUF,1);
+        strcpy(curr_path,cont.dir_name);
+        if((return_value = recursive_forensic(cont.dir_name,&cont,curr_path)) !=0) {
             perror(cont.dir_name);
+            free(curr_path);
             return return_value;
         }
+        free(curr_path);
         return 0;
     }
 
     if(cont.file_name != NULL) {
         char* result = calloc(MAX_BUF,1);
-
+    
         if(file_forensic(cont.file_name, &cont, result) != 0){
             perror("Forensic Error\n");
         }

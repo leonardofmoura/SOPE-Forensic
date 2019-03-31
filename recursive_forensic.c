@@ -10,7 +10,7 @@
 #include <recursive_forensic.h>
 #include <file_forensic.h>
 
-int recursive_forensic(const char* dir_path, struct Contents* content) {
+int recursive_forensic(const char* dir_path, struct Contents* content,char* curr_path) {
     DIR* dir_ptr;
     struct dirent *dentry;
     struct stat stat_entry;
@@ -49,7 +49,7 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
                 //log action
                 char* result = calloc(MAX_BUF,1);
                 //printf("FILE ANALYSED: %s\n",dentry->d_name);
-                strcat(result,dir_path);
+                strcat(result,curr_path);
                 strcat(result,"/");
                 if(file_forensic(dentry->d_name,content, result) !=0) {
                     perror(content->file_name);
@@ -85,7 +85,9 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
 
             if(pid == 0) {
                 //printf("DIRECTORY ANALYSED: %s\n",dentry->d_name);
-                recursive_forensic(dentry->d_name,content);
+                strcat(curr_path,"/");
+                strcat(curr_path,dentry->d_name);
+                recursive_forensic(dentry->d_name,content,curr_path);
                 //log action
                 closedir(dir_ptr);
                 return 0;
