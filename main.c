@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Just display the info collected after parsing;
-    display_info(&cont);
+    //display_info(&cont);
 
     int fd;
     if(cont.outfile != NULL) {
@@ -106,26 +106,17 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    //Commented only because it was faulty
-    //But im waiting for your fix Sofia-chan
-    /*
-    if(cont.file_name != NULL){
-        char *result = getFileInfo(cont.file_name);
-        printf("%s, ", result);
-
-        free(result);
-
-        result = getFileStatus(cont.file_name);
-        printf("%s", result);
-
-        free(result);
-    }*/
-
     if(cont.file_name != NULL) {
-        if(file_forensic(cont.file_name,&cont) !=0) {
-            perror(cont.file_name);
-            return 5;
+          char* result = malloc(MAX_BUF);
+
+        if(file_forensic(cont.file_name, &cont, result) != 0){
+            perror("Forensic Error\n");
         }
+
+        printf("%s\n", result);
+
+        free(result);
     }
+
     return 0;
 }

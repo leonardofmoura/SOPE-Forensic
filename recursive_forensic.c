@@ -47,12 +47,21 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
 
             if( pid == 0) {
                 //log action
+                char* result = malloc(MAX_BUF);
+
                 printf("FILE ANALYSED: %s\n",dentry->d_name);
-                if(file_forensic(dentry->d_name,content) !=0) {
+
+                if(file_forensic(dentry->d_name,content, result) !=0) {
                     perror(content->file_name);
                     return 4;
                 }
+
+                printf("%s\n", result);
+
+                free(result); 
+
                 closedir(dir_ptr);
+                
                 return 0;
             }
 

@@ -12,10 +12,7 @@
 
 #define MAX_BUF     512
 
-char * concatenate(char * old, char * new);
-char * getFileInfo(char * file_name);
-char * getFileStatus(char* file_name);
-
-int file_forensic(const char* file_name, struct Contents* contents);
-
-
+void getFileInfo(const char * file_name, char* info);
+void getFileStatus(const char* file_name, char* info);
+void getFileHash(const char* file_name, struct Contents* contents, char* info);
+int file_forensic(const char* file_name, struct Contents* contents, char* result);
