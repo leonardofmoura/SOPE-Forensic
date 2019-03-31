@@ -61,3 +61,4 @@ logfile.txt
 
 .depend
 .vscode/
+*.ipch
