@@ -18,8 +18,12 @@ int recursive_forensic(const char* dir_path, struct Contents* content,char* curr
     int proc_ongoing =0;
     
     char path[2*MAX_BUFFER];
+    
+    if(dir_path[0] != '/') {
     getcwd(path,MAX_BUFFER);            //get the path to the directory to analyse
     strcat(path,"/");
+    }
+    
     strcat(path,dir_path);
     chdir(path);
     if((dir_ptr = opendir(path)) == NULL) {
