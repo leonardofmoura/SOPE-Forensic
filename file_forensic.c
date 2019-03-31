@@ -63,14 +63,14 @@ void fixInfo(char * info){
         if(info[i] == ':'){
             info[i] = ',';
         }
+        else if(info[i] == ' ') {
+            memmove(&info[i], &info[i + 1], strlen(info) - i);
+            i++;
+        }
         else if(info[i] == ',' || info[i] == '\n'){
             info[i] = '\0';
             info = realloc(info, i);
             return;
-        }
-        else if(info[i] == ' ') {
-            memmove(&info[i], &info[i + 1], strlen(info) - i);
-            i++;
         }
     }
 }
@@ -118,9 +118,9 @@ void getFileStatus(const char* file_name, char* info){
 
     lstat(file_name, &statbuf);
 
-    sprintf(info, "%ld,%s,%s,%s", 
-    // char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
     char aux[sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1];
+    sprintf(aux, ",%ld,%s,%s,%s", 
+    // char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
 
         statbuf.st_size, 
         selectPermissions(statbuf.st_mode), 
@@ -146,9 +146,9 @@ void getFileHash(const char* file_name, struct Contents* contents, char* result)
         sha1_sum(file_name,aux);
         // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
         strcat(result, ",");
+        strcat(result, aux);
     }
 
-        strcat(result, aux);
     if(contents->sha256_hash) {
         char aux[100];
         sha256_sum(file_name,aux);
