@@ -47,7 +47,7 @@ int recursive_forensic(const char* dir_path, struct Contents* content) {
 
             if( pid == 0) {
                 //log action
-                char * result;
+                char* result = malloc(MAX_BUF);
 
                 printf("FILE ANALYSED: %s\n",dentry->d_name);
 
