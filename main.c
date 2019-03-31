@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
     }
 
     //Just display the info collected after parsing;
-    display_info(&cont);
+    //display_info(&cont);
 
     int fd;
     if(cont.outfile != NULL) {

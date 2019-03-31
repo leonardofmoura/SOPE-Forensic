@@ -72,6 +72,10 @@ void fixInfo(char * info){
             info = realloc(info, i);
             return;
         }
+        else if(info[i] == ' ') {
+            memmove(&info[i], &info[i + 1], strlen(info) - i);
+            i++;
+        }
     }
 }
 
