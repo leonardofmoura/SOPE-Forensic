@@ -9,12 +9,12 @@
 #define FAIL        1
 
 
-char* getParcell(int number, int increment){
-    char* result = malloc(3);
+void getParcell(int number, int increment,char* result){
+    //char* result = malloc(3);
 
     if(increment == 2 && number == 60){
         sprintf(result, "00");
-        return result;
+        return;// result;
     }
 
     if(number > 9){
@@ -22,29 +22,40 @@ char* getParcell(int number, int increment){
     }
     else sprintf(result, "0%d", number + increment);
 
-    return result;
+    return;//result;
 }
 
-char* getDate(time_t * date_time){
-    char* info = malloc(20);
+void getDate(time_t * date_time,char* date){
+    //char info = malloc(20);
 
     struct tm *dates = gmtime(date_time);
 
-    sprintf(info, "%d-%s-%sT%s:%s:%s", 
-        dates->tm_year + 1900, 
-        getParcell(dates->tm_mon, 1), 
-        getParcell(dates->tm_mday, 0),
-        getParcell(dates->tm_hour, 0),
-        getParcell(dates->tm_min, 0),
-        getParcell(dates->tm_sec, 2));
+    char* tmp = calloc(10,1);
+    getParcell(dates->tm_mon, 1,tmp);
+    sprintf(date, "%d-%s-", 
+        dates->tm_year + 1900, tmp);
+    
+    getParcell(dates->tm_mday, 0,tmp);
+    strcat(date,tmp);
+    strcat(date,"T");
+    getParcell(dates->tm_hour, 0,tmp);
+    strcat(date,tmp);
+    strcat(date,":");
+    getParcell(dates->tm_min, 0,tmp);
+    strcat(date,tmp);
+    strcat(date,":");
+    getParcell(dates->tm_sec, 2,tmp);
+    strcat(date,tmp);
 
-    return info;
+    free(tmp);
+
+    //return info;
 }
 
-char* selectPermissions(mode_t mode){
-    char* aux = malloc(10);
+void selectPermissions(mode_t mode,char* perm){
+    //char* aux = malloc(10);
 
-    sprintf(aux, "%c%c%c%c%c%c%c%c%c", 
+    sprintf(perm, "%c%c%c%c%c%c%c%c%c", 
         (mode & S_IRUSR) ? 'r' : '-', 
         (mode & S_IWUSR) ? 'w' : '-', 
         (mode & S_IXUSR) ? 'x' : '-', 
@@ -55,21 +66,25 @@ char* selectPermissions(mode_t mode){
         (mode & S_IWOTH) ? 'w' : '-', 
         (mode & S_IXOTH) ? 'x' : '-');
 
-    return aux;
+    //return aux;
 }
 
 void fixInfo(char * info){
+    bool flag = false;
     for(int i = 0; i < strlen(info); i++){
         if(info[i] == ':'){
             info[i] = ',';
         }
         else if(info[i] == ' ') {
+            if(flag)
+                continue;
             memmove(&info[i], &info[i + 1], strlen(info) - i);
             i++;
+            flag = true;
         }
         else if(info[i] == ',' || info[i] == '\n'){
             info[i] = '\0';
-            info = realloc(info, i);
+            //info = realloc(info, i);
             return;
         }
     }
@@ -102,8 +117,6 @@ void getFileInfo(const char * file_name, char* info){ //1,2,3,4,5,6
         int n;
 
         while((n = read(pipe_des[0], buffer, MAX_BUF - 1)) > 0){
-            // buffer[n] = '\0';
-            // info = realloc(info, n + strlen(info));
             strcat(info, buffer);
         }
     }
@@ -119,25 +132,25 @@ void getFileStatus(const char* file_name, char* info){
     lstat(file_name, &statbuf);
 
     char aux[sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1];
-    sprintf(aux, ",%ld,%s,%s,%s", 
-    // char* info = malloc(sizeof(statbuf.st_size)/sizeof(off_t) + PERMISSIONS_SIZE + 2*DATE_TIME_SIZE + 4*COMMA_SPACE_SIZE + 1);
-
-        statbuf.st_size, 
-        selectPermissions(statbuf.st_mode), 
-        getDate(&statbuf.st_atime), 
-        getDate(&statbuf.st_mtime));
-
+    char* tmp = malloc(MAX_BUF);
+    selectPermissions(statbuf.st_mode,tmp); 
+    sprintf(aux, ",%ld,%s,",statbuf.st_size,tmp); 
+    getDate(&statbuf.st_atime,tmp); 
+    strcat(aux,tmp);
+    strcat(aux,",");
+    getDate(&statbuf.st_mtime,tmp);
+    strcat(aux,tmp);
+    strcat(aux,",");
     strcat(info, aux);
+    free(tmp);
     // return info;
 }
 
 void getFileHash(const char* file_name, struct Contents* contents, char* result){    
     if(contents->md5_hash) {
-        strcat(result, ",");
         char aux[100];
-        sha1_sum(file_name, aux);
+        md5_sum(file_name, aux);
         // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-        strcat(result, ",");
         strcat(result, aux);
     }
 
@@ -145,7 +158,8 @@ void getFileHash(const char* file_name, struct Contents* contents, char* result)
         char aux[100];
         sha1_sum(file_name,aux);
         // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-        strcat(result, ",");
+        if(contents->md5_hash)
+            strcat(result, ",");
         strcat(result, aux);
     }
 
@@ -153,19 +167,18 @@ void getFileHash(const char* file_name, struct Contents* contents, char* result)
         char aux[100];
         sha256_sum(file_name,aux);
         // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-        strcat(result, ",");
+        if(contents->md5_hash || contents->sha1_hash)
+            strcat(result, ",");
         strcat(result, aux);
     }
 }
 
 int file_forensic(const char* file_name, struct Contents* contents, char* result) {   
+    
     getFileInfo(file_name, result);
 
     getFileStatus(file_name, result);
 
-    // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-    // strcat(result, ", ");
-    // strcat(result, aux);
 
     getFileHash(file_name, contents, result);
 

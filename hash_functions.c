@@ -18,7 +18,7 @@ void md5_sum(const char* file_name,char* hash) {
     
     pclose(f);
     free(hash_command);
-    hash = strtok(hash,"");
+    hash = strtok(hash," ");
 }
 
 void sha1_sum(const char* file_name,char* hash) {

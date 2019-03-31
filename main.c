@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
     }
 
     if(cont.file_name != NULL) {
-          char* result = malloc(MAX_BUF);
+        char* result = calloc(MAX_BUF,1);
 
         if(file_forensic(cont.file_name, &cont, result) != 0){
             perror("Forensic Error\n");
