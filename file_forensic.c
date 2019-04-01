@@ -177,12 +177,11 @@ int file_forensic(char* file_name, struct Contents* contents, char* result) {
     
     verbose_analized(getpid(),file_name);
 
-    //getFileInfo(file_name, result);   
+    getFileInfo(file_name, result);   
 
-    //getFileStatus(file_name, result);
+    getFileStatus(file_name, result);
 
-
-    //getFileHash(file_name, contents, result);
+    getFileHash(file_name, contents, result);
 
     return SUCCESS;
 }

@@ -78,7 +78,7 @@ void get_command_string(struct Contents* contents, char command_string[]) {
         command_string = strcat(command_string,contents->outfile);
         command_string = strcat(command_string," ");
     }
-    if (contents->log_check != NULL) {
+    if (contents->log_check) {
         command_string = strcat(command_string,"-v ");
     }
     strcat(command_string,contents->file_name);

@@ -18,7 +18,7 @@ struct Contents {
 
     bool sha256_hash;
 
-    char* log_check;
+    bool log_check;
 
 };
 
