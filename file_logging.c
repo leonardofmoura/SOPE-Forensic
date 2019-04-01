@@ -48,22 +48,6 @@ void get_command_string(struct Contents* contents, char command_string[]) {
     if (contents->dir_name != NULL) {
         command_string = strcat(command_string,"-r ");
     }
-    // if (contents->hashes[0] != NULL) {
-    //     command_string = strcat(command_string,"-h ");
-    //     for (int i = 0; i < 4; i++) {
-    //         if (contents->hashes[i] == NULL) {
-    //             break;
-    //         }
-    //         else if (strcmp(contents->hashes[i],"sha256") == 0) {
-    //             command_string = strcat(command_string,contents->hashes[i]);   
-    //             command_string = strcat(command_string," "); 
-    //         }
-    //         else {
-    //             command_string = strcat(command_string,contents->hashes[i]);
-    //             command_string = strcat(command_string,",");
-    //         }
-    //     }
-    // }
     if (contents->md5_hash || contents->sha1_hash || contents->sha256_hash) {
         command_string = strcat(command_string,"-h ");
         if (contents->md5_hash) {

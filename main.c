@@ -81,6 +81,12 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
+    //initialize file logging
+    if (cont.log_check != NULL) {
+        init_time();
+        verbose_command(getpid(),&cont);
+    }
+
     //Just display the info collected after parsing;
     //display_info(&cont);
 

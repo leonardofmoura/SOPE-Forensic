@@ -1,5 +1,6 @@
 #include <file_forensic.h>
 #include <hash_functions.h>
+#include <file_logging.h>
 
 #define DATE_TIME_SIZE      19
 #define PERMISSIONS_SIZE    9
@@ -174,7 +175,9 @@ void getFileHash(char* file_name, struct Contents* contents, char* result){
 
 int file_forensic(char* file_name, struct Contents* contents, char* result) {   
     
-    //getFileInfo(file_name, result);
+    verbose_analized(getpid(),file_name);
+
+    //getFileInfo(file_name, result);   
 
     //getFileStatus(file_name, result);
 
