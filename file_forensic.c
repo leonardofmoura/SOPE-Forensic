@@ -91,7 +91,7 @@ void fixInfo(char * info){
 }
 
 //file analysis functions
-void getFileInfo(const char * file_name, char* info){ //1,2,3,4,5,6
+void getFileInfo(char * file_name, char* info){ //1,2,3,4,5,6
     int pid;
     // char * info = calloc(1, 1);
     int pipe_des[2];
@@ -126,7 +126,7 @@ void getFileInfo(const char * file_name, char* info){ //1,2,3,4,5,6
     // return info;
 }
 
-void getFileStatus(const char* file_name, char* info){
+void getFileStatus(char* file_name, char* info){
     struct stat statbuf;
 
     lstat(file_name, &statbuf);
@@ -140,13 +140,12 @@ void getFileStatus(const char* file_name, char* info){
     strcat(aux,",");
     getDate(&statbuf.st_mtime,tmp);
     strcat(aux,tmp);
-    strcat(aux,",");
     strcat(info, aux);
     free(tmp);
     // return info;
 }
 
-void getFileHash(const char* file_name, struct Contents* contents, char* result){    
+void getFileHash(char* file_name, struct Contents* contents, char* result){    
     if(contents->md5_hash) {
         char aux[100];
         md5_sum(file_name, aux);
@@ -173,14 +172,14 @@ void getFileHash(const char* file_name, struct Contents* contents, char* result)
     }
 }
 
-int file_forensic(const char* file_name, struct Contents* contents, char* result) {   
+int file_forensic(char* file_name, struct Contents* contents, char* result) {   
     
-    getFileInfo(file_name, result);
+    //getFileInfo(file_name, result);
 
-    getFileStatus(file_name, result);
+    //getFileStatus(file_name, result);
 
 
-    getFileHash(file_name, contents, result);
+    //getFileHash(file_name, contents, result);
 
     return SUCCESS;
 }

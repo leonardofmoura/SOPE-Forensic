@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 
     int fd;
     if(cont.outfile != NULL) {
-        fd = open(cont.outfile, O_WRONLY | O_CREAT,0644);
+        fd = open(cont.outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
         if(fd == -1) {
             perror(cont.outfile);
             close(fd);
@@ -101,8 +101,8 @@ int main(int argc, char* argv[]) {
         int return_value = 0;
         char* curr_path = calloc(MAX_BUF,1);
         strcpy(curr_path,cont.dir_name);
-        if((return_value = recursive_forensic(cont.dir_name,&cont,curr_path)) !=0) {
-            perror(cont.dir_name);
+        if((return_value = recursive_forensic(curr_path,&cont)) !=0) {
+            perror(curr_path);
             free(curr_path);
             return return_value;
         }

@@ -13,7 +13,7 @@
 #define MAX_BUF     512
 
 void getDate(time_t * date_time,char* date);
-void getFileInfo(const char * file_name, char* info);
-void getFileStatus(const char* file_name, char* info);
-void getFileHash(const char* file_name, struct Contents* contents, char* info);
-int file_forensic(const char* file_name, struct Contents* contents, char* result);
+void getFileInfo(char * file_name, char* info);
+void getFileStatus(char* file_name, char* info);
+void getFileHash(char* file_name, struct Contents* contents, char* info);
+int file_forensic(char* file_name, struct Contents* contents, char* result);
