@@ -16,11 +16,6 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
     struct stat stat_entry;
     
     char path[2*MAX_BUFFER]= "";
-
-    if(dir_path == NULL) {
-        printf("FAILED TO READ DIR PATH\n");
-        return 1;
-    }
     
     if(dir_path[0] != '/') {
     getcwd(path,MAX_BUFFER);            //get the path to the directory to analyse
@@ -28,8 +23,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
     }
 
     strcat(path,dir_path);
-    printf("path: '%s'\n",path);
-    chdir(path);
+
     if((dir_ptr = opendir(dir_path)) == NULL) {
         printf("FAILED TO OPEN DIR ON PATH: '%s'\n",path);
         perror(dir_path);
@@ -46,10 +40,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
 
         if (S_ISREG(stat_entry.st_mode)) {
             
-                char* result = calloc(MAX_BUF,1);
-                //printf("FILE ANALYSED: %s\n",dentry->d_name);
-                strcat(result,dir_path);
-                strcat(result,"/");
+                char result[2*MAX_BUF] = "";
                 if(file_forensic(path,content, result) !=0) {
                     printf("FAILED TO ANALYZE FILE: '%s'\n",dentry->d_name);
                     perror(content->file_name);
@@ -57,8 +48,6 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
                 }
 
                 printf("%s\n", result);
-
-                free(result);
         }
         else if(S_ISDIR(stat_entry.st_mode)) {
             if(strncmp(dentry->d_name,".",1) == 0 || strncmp(dentry->d_name,"..",2) == 0) {
@@ -74,9 +63,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
             }
 
             if(pid == 0) {
-                //printf("DIRECTORY ANALYSED: %s\n",dentry->d_name);
-                //strcat(dir_path,"/");
-                //strcat(dir_path,dentry->d_name);
+                
                 if(recursive_forensic(path,content) != 0) {
                     perror(dentry->d_name);
                     return 6;

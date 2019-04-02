@@ -105,14 +105,13 @@ int main(int argc, char* argv[]) {
 
     if(cont.dir_name != NULL) {
         int return_value = 0;
-        char* curr_path = calloc(MAX_BUF,1);
+        char curr_path[MAX_BUF] = "";
         strcpy(curr_path,cont.dir_name);
         if((return_value = recursive_forensic(curr_path,&cont)) !=0) {
             perror(curr_path);
-            free(curr_path);
             return return_value;
         }
-        free(curr_path);
+        
         return 0;
     }
 

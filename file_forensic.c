@@ -150,25 +150,21 @@ void getFileHash(char* file_name, struct Contents* contents, char* result){
     if(contents->md5_hash) {
         char aux[100];
         md5_sum(file_name, aux);
-        // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
+        strcat(result, ",");
         strcat(result, aux);
     }
 
     if(contents->sha1_hash) {
         char aux[100];
         sha1_sum(file_name,aux);
-        // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-        if(contents->md5_hash)
-            strcat(result, ",");
+        strcat(result, ",");
         strcat(result, aux);
     }
 
     if(contents->sha256_hash) {
-        char aux[100];
+        char aux[200];
         sha256_sum(file_name,aux);
-        // result = realloc(result, strlen(aux) + COMMA_SPACE_SIZE + strlen(result));
-        if(contents->md5_hash || contents->sha1_hash)
-            strcat(result, ",");
+        strcat(result, ",");
         strcat(result, aux);
     }
 }
