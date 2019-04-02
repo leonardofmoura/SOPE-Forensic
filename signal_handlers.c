@@ -5,7 +5,13 @@ int sigusr1_counter;
 int sigusr2_counter;
 
 //handlers code
+void SIGUSR1_handler(){
+    sigusr1_counter++;
+}
 
+void SIGUSR2_handler(){
+    sigusr2_counter++;
+}
 
 //install handlers
 void initializeActionStruct(){
@@ -13,16 +19,29 @@ void initializeActionStruct(){
     action.sa_flags = 0;
 }
 
-void subscribeSignal(int SIGNAL){
+void subscribeSignal(int SIGNAL, void (*func)(void)){
+    action.sa_handler = func;
 
-    
-    sigaction(SIGNAL, &action, NULL);
+    if (sigaction(SIGNAL, &action, NULL) < 0)
+    {
+        fprintf(stderr,"Unable to install %d handler\n", SIGNAL);
+        exit(1);
+    }
 }
 
 void unsubscribeSignal(int SIGNAL){
-    
+
 }
 
+void subscribeSIGUSR(){
+    subscribeSignal(SIGUSR1, SIGUSR1_handler);
+    sigusr1_counter = 0;
+
+    subscribeSignal(SIGUSR2, SIGUSR2_handler);
+    sigusr2_counter = 0;
+}
+
+//other
 int getCounter_SIGUSR1(){
     return sigusr1_counter;
 }

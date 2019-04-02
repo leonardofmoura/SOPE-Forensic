@@ -16,6 +16,8 @@
 #include "file_forensic.h"
 #include "signal_handlers.h"
 
+bool o_flag;
+
 void show_usage() {
     printf("Usage: forensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");
 }
@@ -99,6 +101,8 @@ int main(int argc, char* argv[]) {
     int stdout_save;
 
     if(cont.outfile != NULL) {
+        o_flag = true; 
+
         fd = open(cont.outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
         if(fd == -1) {
             perror(cont.outfile);
@@ -113,6 +117,7 @@ int main(int argc, char* argv[]) {
         dup2(fd,STDOUT_FILENO);
         close(fd);
     }
+    else o_flag = false;
 
     if(cont.dir_name != NULL) {
         int return_value = 0;
@@ -138,7 +143,7 @@ int main(int argc, char* argv[]) {
         free(result);
     }
 
-    if(cont.outfile != NULL) {
+    if(o_flag) {
         dup2(stdout_save, STDOUT_FILENO);
         close(stdout_save);
         printf("Directories analysed: %d\nFiles analysed: %d\n", getCounter_SIGUSR1(), getCounter_SIGUSR2());
