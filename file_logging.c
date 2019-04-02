@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/file.h>
 #include "input_parser.h"
 #include "file_logging.h"
 
@@ -90,7 +91,7 @@ void verbose_command(pid_t pid, struct Contents* contents) {
     if (verbose) {
         //initialize log file
         char* logfilename = getenv("LOGFILENAME");
-        int logfile = open(logfilename, O_WRONLY | O_APPEND); 
+        int logfile = open(logfilename, O_WRONLY | O_CREAT | O_TRUNC,0644); 
 
         //get the time 
         char time_string[MAX_STR_SIZE];
@@ -127,6 +128,7 @@ void verbose_command(pid_t pid, struct Contents* contents) {
             }
             write(logfile,&command_string[i],sizeof(char));
         }
+
         close(logfile);
     }
     else {
@@ -153,6 +155,8 @@ void verbose_analized(pid_t pid, char filename[]) {
         char analized_string[MAX_STR_SIZE];
         get_analized_string(filename,analized_string);
 
+        flock(logfile,LOCK_EX);
+
         //write the pid
         for (int i = 0; i < MAX_STR_SIZE; i++) {
             if (pid_string[i] == '\0') {
@@ -176,6 +180,8 @@ void verbose_analized(pid_t pid, char filename[]) {
             }
             write(logfile,&analized_string[i],sizeof(char));
         }
+
+        flock(logfile,LOCK_UN);
 
         close(logfile); 
     }
