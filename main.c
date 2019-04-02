@@ -9,11 +9,12 @@
 #include <input_parser.h>
 #include <file_logging.h>
 //include de ficheiros de fora
-#include <hash_functions.h>
-#include <recursive_forensic.h>
+#include "hash_functions.h"
+#include "recursive_forensic.h"
 
 //include de ficheiros de fora
 #include "file_forensic.h"
+#include "signal_handlers.h"
 
 void show_usage() {
     printf("Usage: forensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");
@@ -87,10 +88,16 @@ int main(int argc, char* argv[]) {
         verbose_command(getpid(),&cont);
     }
 
+    //initialize signal handler struct
+    initializeActionStruct();
+
     //Just display the info collected after parsing;
     //display_info(&cont);
 
     int fd;
+
+    int stdout_save;
+
     if(cont.outfile != NULL) {
         fd = open(cont.outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
         if(fd == -1) {
@@ -98,6 +105,10 @@ int main(int argc, char* argv[]) {
             close(fd);
             return 4;
         }
+        //get std out descriptor and save it in a temporary variable
+        stdout_save = dup(STDOUT_FILENO);
+
+        //activate sigusr1
         printf("Data saved on file %s\n",cont.outfile);
         dup2(fd,STDOUT_FILENO);
         close(fd);
@@ -125,6 +136,12 @@ int main(int argc, char* argv[]) {
         printf("%s\n", result);
 
         free(result);
+    }
+
+    if(cont.outfile != NULL) {
+        dup2(stdout_save, STDOUT_FILENO);
+        close(stdout_save);
+        printf("Directories analysed: %d\nFiles analysed: %d\n", getCounter_SIGUSR1(), getCounter_SIGUSR2());
     }
 
     return 0;
