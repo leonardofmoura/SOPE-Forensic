@@ -27,4 +27,7 @@ void verbose_analized(pid_t pid, char filename[]);
 //verbose a received signal
 void verbose_signal(pid_t pid, int sig);
 
+//writes string[] in file; Suposes file is open
+int write_string_to_file(char string[], int file);
+
 #endif

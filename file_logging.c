@@ -86,7 +86,20 @@ void get_command_string(struct Contents* contents, char command_string[]) {
     strcat(command_string,"\n");
 }
 
-//work in progress
+int write_string_to_file(char string[], int file) {
+    for (int i = 0; i < MAX_STR_SIZE; i++) {
+        if (string[i] == '\0') {
+            break;
+        }
+        if (write(file,&string[i],sizeof(char))== -1) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
 void verbose_command(pid_t pid, struct Contents* contents) {
     if (verbose) {
         //initialize log file
@@ -105,28 +118,18 @@ void verbose_command(pid_t pid, struct Contents* contents) {
         char command_string[MAX_STR_SIZE];
         get_command_string(contents,command_string);
 
-        //write the pid
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (pid_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&pid_string[i],sizeof(char));
-        }
-
         //write the time
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (time_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&time_string[i],sizeof(char));
+        if (write_string_to_file(time_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write time string to file\n");
         }
 
-        //write the command 
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (command_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&command_string[i],sizeof(char));
+        //write the pid
+        if (write_string_to_file(pid_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write pid string to file\n");
+        }
+
+        if (write_string_to_file(command_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write command string to file\n");
         }
 
         close(logfile);
@@ -135,7 +138,6 @@ void verbose_command(pid_t pid, struct Contents* contents) {
         return;
     }
 }
-
 
 void verbose_analized(pid_t pid, char filename[]) {
     if (verbose) {
@@ -157,28 +159,18 @@ void verbose_analized(pid_t pid, char filename[]) {
 
         flock(logfile,LOCK_EX);
 
-        //write the pid
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (pid_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&pid_string[i],sizeof(char));
-        }
-
         //write the time
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (time_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&time_string[i],sizeof(char));
+        if (write_string_to_file(time_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write time string to file\n");
         }
 
-        //write the analized string
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (analized_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&analized_string[i],sizeof(char));
+        //write the pid
+        if (write_string_to_file(pid_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write pid string to file\n");
+        }
+
+        if (write_string_to_file(analized_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write analized string to file\n");
         }
 
         flock(logfile,LOCK_UN);
@@ -208,28 +200,18 @@ void verbose_signal(pid_t pid, int sig) {
         char signal_string[MAX_STR_SIZE];
         get_signal_string(sig,signal_string);
 
-        //write the pid
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (pid_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&pid_string[i],sizeof(char));
-        }
-
         //write the time
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (time_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&time_string[i],sizeof(char));
+        if (write_string_to_file(time_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write time string to file\n");
         }
 
-        //write the signal string
-        for (int i = 0; i < MAX_STR_SIZE; i++) {
-            if (signal_string[i] == '\0') {
-                break;
-            }
-            write(logfile,&signal_string[i],sizeof(char));
+        //write the pid
+        if (write_string_to_file(pid_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write pid string to file\n");
+        }
+
+        if (write_string_to_file(signal_string,logfile) != 0) {
+            fprintf(stderr,"Unable to write signal string to file\n");
         }
 
         close(logfile); 
