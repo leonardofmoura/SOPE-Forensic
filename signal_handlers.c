@@ -16,12 +16,13 @@ void output_filename(char* name){
 void SIGUSR1_handler(int d){
     verbose_signal(getpid(),d);
     sigusr1_counter++;
+    verbose_signal(getpid(),SIGUSR1);
 }
 
 void SIGUSR2_handler(int d){
     // verbose_signal(getpid(),d);
     sigusr2_counter++;
-
+    //verbose_signal(getpid(),SIGUSR2);
     dup2(stdout_save, STDOUT_FILENO);
     close(stdout_save);    
 

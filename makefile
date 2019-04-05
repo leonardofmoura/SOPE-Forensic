@@ -26,7 +26,7 @@ $(DEPFILE): $(SRCS)
 	$(CC) $(CFLAGS) -MM $^>>$(DEPFILE);
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) forensic .depend
 
 distclean: clean
 	$(RM) *~ $(DEPFILE)

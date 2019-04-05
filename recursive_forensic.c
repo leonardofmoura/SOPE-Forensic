@@ -12,8 +12,8 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <signal.h>
-
 #include "signal_handlers.h"
+#include "file_logging.h"
 
 int recursive_forensic(char* dir_path, struct Contents* content) {
     DIR* dir_ptr;
@@ -30,7 +30,6 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
     strcat(path,dir_path);
 
     if((dir_ptr = opendir(dir_path)) == NULL) {
-        printf("FAILED TO OPEN DIR ON PATH: '%s'\n",path);
         perror(dir_path);
         return 1;
     }
@@ -49,6 +48,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
 
                 pgid = getpgid(getpid());
 
+                verbose_signal(getpid(),SIGUSR2);
                 kill(pgid, SIGUSR2);
             }
 
@@ -62,7 +62,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
             printf("%s\n", result);
         }
         else if(S_ISDIR(stat_entry.st_mode)) {
-            if(strncmp(dentry->d_name,".",1) == 0 || strncmp(dentry->d_name,"..",2) == 0) {
+            if(strcmp(dentry->d_name,".") == 0 || strcmp(dentry->d_name,"..") ==0) {
                 //current directory or parent
                 //not doing anything
                 continue;
@@ -73,6 +73,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
 
                 gpid = getpgid(getpid());
 
+                verbose_signal(getpid(),SIGUSR1);
                 kill(gpid, SIGUSR1);
             }
 
