@@ -19,7 +19,6 @@ struct Contents {
     bool sha256_hash;
 
     bool log_check;
-
 };
 
 int input_parser(int n_args, char* argv[],struct Contents *contents);

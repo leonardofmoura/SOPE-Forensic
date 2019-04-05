@@ -7,8 +7,12 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
-#include "recursive_forensic.h"
-#include "file_forensic.h"
+#include <recursive_forensic.h>
+#include <file_forensic.h>
+#include <limits.h>
+#include <fcntl.h>
+#include <signal.h>
+
 #include "signal_handlers.h"
 
 int recursive_forensic(char* dir_path, struct Contents* content) {
@@ -40,17 +44,32 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
         }
 
         if (S_ISREG(stat_entry.st_mode)) {
-            
-                char result[2*MAX_BUF] = "";
-                if(file_forensic(path,content, result) !=0) {
-                    printf("FAILED TO ANALYZE FILE: '%s'\n",dentry->d_name);
-                    perror(content->file_name);
-                    return 4;
-                }
+            if(content->outfile != NULL) {
+                pid_t pgid;
 
-                printf("%s\n", result);
+                pgid = getpgid(getpid());
+
+                kill(pgid, SIGUSR2);
+            }
+
+            char result[2*MAX_BUF] = "";
+            if(file_forensic(path,content, result) !=0) {
+                printf("FAILED TO ANALYZE FILE: '%s'\n",dentry->d_name);
+                perror(content->file_name);
+                return 4;
+            }
+
+            printf("%s\n", result);
         }
         else if(S_ISDIR(stat_entry.st_mode)) {
+            if(content->outfile != NULL) {
+                pid_t gpid;
+
+                gpid = getpgid(getpid());
+
+                kill(gpid, SIGUSR1);
+            }
+
             if(strncmp(dentry->d_name,".",1) == 0 || strncmp(dentry->d_name,"..",2) == 0) {
                 //current directory or parent
                 //not doing anything
@@ -58,6 +77,7 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
             }
 
             pid_t pid = fork();
+
             if(pid < 0) {
                 perror("Fork failed.");
                 return 5;

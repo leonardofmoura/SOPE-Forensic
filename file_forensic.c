@@ -113,6 +113,8 @@ void getFileInfo(char * file_name, char* info){ //1,2,3,4,5,6
         dup2(pipe_des[1], STDOUT_FILENO);
 
         execlp("file", "file", file_name, NULL);
+
+        //not necessary to close, for exec call does not allow to read code further
     }
     else{
         close(pipe_des[1]);
@@ -122,10 +124,12 @@ void getFileInfo(char * file_name, char* info){ //1,2,3,4,5,6
         while((n = read(pipe_des[0], buffer, MAX_BUF - 1)) > 0){
             strcat(info, buffer);
         }
+
+        close(pipe_des[0]);
     }
     
     fixInfo(info);
-
+    
     // return info;
 }
 

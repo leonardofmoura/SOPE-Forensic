@@ -1,0 +1,11 @@
+handler2:13
+New directory: 0/0 directories/files at this time.
+test_files/file1.txt,ASCII text,2851,rw-r--r--,2019-04-04T18:31:52,2019-03-31T22:13:14
+handler2:13
+New directory: 0/0 directories/files at this time.
+handler2:13
+New directory: 0/0 directories/files at this time.
+test_files/subfolder2/file2.txt,ASCII text,2851,rw-r--r--,2019-04-04T18:31:52,2019-03-31T22:13:14
+test_files/subfolder1/subsubfolder1/file11.txt,ASCII text,2851,rw-r--r--,2019-04-04T18:31:52,2019-03-31T22:13:14
+test_files,directory,4096,rwxr-xr-x,2019-04-04T18:31:52,2019-03-31T22:13:14
+test_files,directory,4096,rwxr-xr-x,2019-04-04T18:31:52,2019-03-31T22:13:14
