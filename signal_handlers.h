@@ -17,6 +17,7 @@ bool get_sigint();
 #define NO_FLAG     0
 
 void subscribeSignal(int SIGNAL, void (*func)(int), int FLAG);
+void output_filename(char* name);
 void unsubscribeSignal(int SIGNAL);
 void subscribeSIGUSR();
 void printMsg();
