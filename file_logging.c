@@ -86,8 +86,8 @@ void get_command_string(struct Contents* contents, char command_string[]) {
     }
     if (contents->file_name != NULL) {
         strcat(command_string,contents->file_name);
-        strcat(command_string,"\n");
     }
+    strcat(command_string,"\n");
 }
 
 int write_string_to_file(char string[], int file) {
@@ -95,7 +95,7 @@ int write_string_to_file(char string[], int file) {
         if (string[i] == '\0') {
             break;
         }
-        if (write(file,&string[i],sizeof(char))== -1) {
+        if (write(file,&string[i],sizeof(char)) == -1) {
             return 1;
         }
     }

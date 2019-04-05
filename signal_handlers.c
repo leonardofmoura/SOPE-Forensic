@@ -14,10 +14,12 @@ void output_filename(char* name){
 
 //handlers code
 void SIGUSR1_handler(int d){
+    verbose_signal(getpid(),d);
     sigusr1_counter++;
 }
 
 void SIGUSR2_handler(int d){
+    // verbose_signal(getpid(),d);
     sigusr2_counter++;
 
     dup2(stdout_save, STDOUT_FILENO);
@@ -27,7 +29,7 @@ void SIGUSR2_handler(int d){
 }
 
 void SIGINT_handler(int sig) {
-    verbose_signal(getpid(),SIGINT);
+    verbose_signal(getpid(),sig);
     sigint = true;
 }
 
