@@ -7,8 +7,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
-#include <recursive_forensic.h>
-#include <file_forensic.h>
+#include "recursive_forensic.h"
+#include "file_forensic.h"
+#include "signal_handlers.h"
 
 int recursive_forensic(char* dir_path, struct Contents* content) {
     DIR* dir_ptr;
@@ -63,6 +64,9 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
             }
 
             if(pid == 0) {
+                if (get_sigint()) {
+                    exit(2);
+                }
                 
                 if(recursive_forensic(path,content) != 0) {
                     perror(dentry->d_name);
@@ -71,15 +75,15 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
                 //log action
                 exit(0);
             }
+
+            else {
+                    int status;
+                    while(wait(&status) > 0);
+            }
         }
     }
 
     closedir(dir_ptr);
-
-    //wait for all the processes ongoing to finish
-    //and report any process that end badly
-    int status;
-    while(wait(&status) > 0);
 
     return 0;
 }

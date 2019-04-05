@@ -3,6 +3,8 @@
 
 #define MAX_STR_SIZE 256
 
+#include <unistd.h>
+
 //stores the time of the initialization of the program
 void init_time();
 

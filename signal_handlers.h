@@ -1,10 +1,10 @@
 #pragma once
 
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <stdbool.h>
+
+void install_SIGINT_handler();
+
+bool get_sigint();
 
 void initializeActionStruct();
 void subscribeSignal(int SIGNAL, void (*func)(void));

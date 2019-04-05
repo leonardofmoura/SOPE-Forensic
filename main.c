@@ -73,6 +73,8 @@ int main(int argc, char* argv[]) {
         show_usage();
         return 1;
     }
+
+    install_SIGINT_handler();
     
     //parse the command given
     struct Contents cont;

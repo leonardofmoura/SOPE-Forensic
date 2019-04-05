@@ -47,7 +47,7 @@ int input_parser(int n_args, char* argv[],struct Contents *contents) {
     if(needed != n_args) {
         return -1;
     }
-
+    
     return 0;
 }
 

@@ -1,6 +1,8 @@
 #include <file_forensic.h>
 #include <hash_functions.h>
 #include <file_logging.h>
+#include "signal_handlers.h"
+#include <unistd.h>
 
 #define DATE_TIME_SIZE      19
 #define PERMISSIONS_SIZE    9
@@ -178,6 +180,10 @@ int file_forensic(char* file_name, struct Contents* contents, char* result) {
     getFileStatus(file_name, result);
 
     getFileHash(file_name, contents, result);
+
+    if (get_sigint()) {
+        exit(2);
+    }
 
     return SUCCESS;
 }

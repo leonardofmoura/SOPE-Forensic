@@ -48,6 +48,8 @@ void get_command_string(struct Contents* contents, char command_string[]) {
    
     if (contents->dir_name != NULL) {
         command_string = strcat(command_string,"-r ");
+        command_string = strcat(command_string,contents->dir_name);
+        command_string = strcat(command_string," ");
     }
     if (contents->md5_hash || contents->sha1_hash || contents->sha256_hash) {
         command_string = strcat(command_string,"-h ");
@@ -82,8 +84,10 @@ void get_command_string(struct Contents* contents, char command_string[]) {
     if (contents->log_check) {
         command_string = strcat(command_string,"-v ");
     }
-    strcat(command_string,contents->file_name);
-    strcat(command_string,"\n");
+    if (contents->file_name != NULL) {
+        strcat(command_string,contents->file_name);
+        strcat(command_string,"\n");
+    }
 }
 
 int write_string_to_file(char string[], int file) {
@@ -200,6 +204,8 @@ void verbose_signal(pid_t pid, int sig) {
         char signal_string[MAX_STR_SIZE];
         get_signal_string(sig,signal_string);
 
+        flock(logfile,LOCK_EX);
+
         //write the time
         if (write_string_to_file(time_string,logfile) != 0) {
             fprintf(stderr,"Unable to write time string to file\n");
@@ -213,6 +219,9 @@ void verbose_signal(pid_t pid, int sig) {
         if (write_string_to_file(signal_string,logfile) != 0) {
             fprintf(stderr,"Unable to write signal string to file\n");
         }
+
+        flock(logfile,LOCK_UN);
+
 
         close(logfile); 
     }
