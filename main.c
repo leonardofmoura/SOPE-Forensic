@@ -1,13 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <time.h>
-#include <string.h>
-#include <input_parser.h>
-
 //include de ficheiros de fora
 #include "file_logging.h"
 #include "hash_functions.h"
@@ -15,55 +5,11 @@
 #include "file_forensic.h"
 #include "signal_handlers.h"
 
-int stdout_save;
-int fd;
+extern int stdout_save;
 
 void show_usage() {
     printf("Usage: forensic [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-r] <file|dir>  [-v]\n");
 }
-
-// void display_info(struct Contents * contents) {
-//     //first check for recursive analysis on directories
-//     if(contents->dir_name != NULL) {
-//         printf("Directory name: %s\n",contents->dir_name);
-//     }   
-//     else if(contents->file_name != NULL) {
-//         printf("File name: %s\n",contents->file_name);
-//     }
-//     else {
-//         printf("File name missing.\n");
-//         show_usage();
-//         return;
-//     }
-
-//     //check if the hash option has been selected
-//     if(contents->md5_hash) {
-//         printf("MD5 selected.\n");
-//     }
-
-//     if(contents->sha1_hash) {
-//         printf("SHA1 selected.\n");
-//     }
-
-//     if(contents->sha256_hash) {
-//         printf("SHA256 selected.\n");
-//     }
-
-//     //check if the outfile option has been selected
-//     if(contents->outfile != NULL) {
-//         printf("Output file: %s\n",contents->outfile);
-//     }
-
-//     //check if the execution log option has been selected
-//     if(contents->log_check) {
-//         init_time();
-//         verbose_command(getpid(),contents);
-//         printf("Logging execution events.\n");
-//     } 
-//     else {
-//         printf("Not logging execution events.\n");
-//     }
-// }
 
 void parse_commands(struct Contents *contents, int argc, char* argv[]){
     memset(contents,0,sizeof(*contents));
@@ -77,7 +23,9 @@ void parse_commands(struct Contents *contents, int argc, char* argv[]){
 }
 
 void output_file_active(struct Contents * contents){
-    fd = open(contents->outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
+    output_filename(contents->outfile);
+
+    int fd = open(contents->outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
 
     if(fd == -1) {
         perror(contents->outfile);
@@ -94,7 +42,6 @@ void output_file_active(struct Contents * contents){
 }
 
 void recursive_analysis(struct Contents * contents){
-    int return_value = 0;
     char curr_path[MAX_BUF] = "";
     strcpy(curr_path,contents->dir_name);
 
@@ -106,9 +53,10 @@ void recursive_analysis(struct Contents * contents){
             subscribeSIGUSR();
     }
     else if (pid == 0){
-        if((return_value = recursive_forensic(curr_path, contents)) !=0) {
+        if(recursive_forensic(curr_path, contents) !=0) {
             perror(curr_path);
-        }            
+        }
+        return;
     }
 
     int status;
@@ -147,9 +95,6 @@ int main(int argc, char* argv[]) {
         verbose_command(getpid(),&contents);
     }
 
-    //Just display the info collected after parsing;
-    //display_info(&contents);
-
     if(contents.outfile != NULL) {
         output_file_active(&contents);
     }
@@ -157,8 +102,7 @@ int main(int argc, char* argv[]) {
     if(contents.dir_name != NULL) {
         recursive_analysis(&contents);
     }
-
-    if(contents.file_name != NULL) {
+    else if(contents.file_name != NULL) {
         single_file_analysis(&contents);
     }
 

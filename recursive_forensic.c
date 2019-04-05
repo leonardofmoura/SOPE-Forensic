@@ -62,18 +62,18 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
             printf("%s\n", result);
         }
         else if(S_ISDIR(stat_entry.st_mode)) {
+            if(strncmp(dentry->d_name,".",1) == 0 || strncmp(dentry->d_name,"..",2) == 0) {
+                //current directory or parent
+                //not doing anything
+                continue;
+            }
+
             if(content->outfile != NULL) {
                 pid_t gpid;
 
                 gpid = getpgid(getpid());
 
                 kill(gpid, SIGUSR1);
-            }
-
-            if(strncmp(dentry->d_name,".",1) == 0 || strncmp(dentry->d_name,"..",2) == 0) {
-                //current directory or parent
-                //not doing anything
-                continue;
             }
 
             pid_t pid = fork();

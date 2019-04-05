@@ -1,38 +1,29 @@
 #include "signal_handlers.h"
 #include "input_parser.h"
 #include "file_logging.h"
-#include <unistd.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <wait.h>
 
-// extern int stdout_save;
-// extern int fd;
+int stdout_save;
 static int sigusr1_counter = 0;
 static int sigusr2_counter = 0;
-
+char * filename;
 static bool sigint = false;
 
+void output_filename(char* name){
+    filename = name;
+}
+
 //handlers code
-void SIGUSR1_handler(int sigusr1_counter){
+void SIGUSR1_handler(int d){
     sigusr1_counter++;
 }
 
-void SIGUSR2_handler(int sigusr2_counter){
+void SIGUSR2_handler(int d){
     sigusr2_counter++;
-    
-    // int aux = dup(STDOUT_FILENO);
 
-    // dup2(stdout_save, STDOUT_FILENO);
-    // close(stdout_save);
+    dup2(stdout_save, STDOUT_FILENO);
+    close(stdout_save);    
 
     printf("New directory: %d/%d directories/files at this time.\n", sigusr1_counter, sigusr2_counter);
-
-    // dup2(aux, STDOUT_FILENO);
-    // close(aux);
 }
 
 void SIGINT_handler(int sig) {
