@@ -97,8 +97,8 @@ int recursive_forensic(char* dir_path, struct Contents* content) {
             }
 
             else {
-                    int status;
-                    while(wait(&status) > 0);
+                int status;
+                while(wait(&status) > 0);
             }
         }
     }

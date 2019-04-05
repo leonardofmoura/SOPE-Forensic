@@ -65,88 +65,101 @@ void show_usage() {
 //     }
 // }
 
+void parse_commands(struct Contents *contents, int argc, char* argv[]){
+    memset(contents,0,sizeof(*contents));
+    //contents = malloc(sizeof(struct Contents)); // [file,folder,hashes,outfile,log] 
+
+    if(input_parser(argc,argv,contents) != 0) {
+        printf("Invalid option or wrong number of arguments.\n");
+        show_usage();
+        exit(2);
+    }
+}
+
+void output_file_active(struct Contents * contents){
+    fd = open(contents->outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
+
+    if(fd == -1) {
+        perror(contents->outfile);
+        close(fd);
+        exit(4);
+    }
+    //get std out descriptor and save it in a temporary variable
+    stdout_save = dup(STDOUT_FILENO);
+
+    //activate sigusr1
+    printf("Data saved on file %s\n",contents->outfile);
+    dup2(fd,STDOUT_FILENO);
+    close(fd);
+}
+
+void recursive_analysis(struct Contents * contents){
+    int return_value = 0;
+    char curr_path[MAX_BUF] = "";
+    strcpy(curr_path,contents->dir_name);
+
+    //fazer fork tal que pai le os sinais e o filho faz chamada recursiva
+    pid_t pid = fork();
+
+    if(pid > 0){
+        if(contents->outfile != NULL)
+            subscribeSIGUSR();
+    }
+    else if (pid == 0){
+        if((return_value = recursive_forensic(curr_path, contents)) !=0) {
+            perror(curr_path);
+        }            
+    }
+
+    int status;
+    while(wait(&status) > 0);
+}
+
+void single_file_analysis(struct Contents * contents){
+    char* result = calloc(MAX_BUF,1);
+
+    if(file_forensic(contents->file_name, contents, result) != 0){
+        perror("Forensic Error\n");
+    }
+
+    printf("%s\n", result);
+
+    free(result);
+}
+
 int main(int argc, char* argv[]) {
 
     if(argc == 1) {
         //invalid arguments
         show_usage();
-        return 1;
+        exit(1);
     }
 
     install_SIGINT_handler();
     
     //parse the command given
-    struct Contents cont;
-    memset(&cont,0,sizeof(cont));
-    //cont = malloc(sizeof(struct Contents)); // [file,folder,hashes,outfile,log]   
-    if(input_parser(argc,argv,&cont) != 0) {
-        printf("Invalid option or wrong number of arguments.\n");
-        show_usage();
-        return 2;
-    }
+    struct Contents contents;
+    parse_commands(&contents, argc, argv);
 
     //initialize file logging
-    if (cont.log_check) {
+    if (contents.log_check) {
         init_time();
-        verbose_command(getpid(),&cont);
+        verbose_command(getpid(),&contents);
     }
 
     //Just display the info collected after parsing;
-    //display_info(&cont);
+    //display_info(&contents);
 
-    if(cont.outfile != NULL) {
-        fd = open(cont.outfile, O_WRONLY | O_CREAT | O_TRUNC,0644);
-
-        if(fd == -1) {
-            perror(cont.outfile);
-            close(fd);
-            return 4;
-        }
-        //get std out descriptor and save it in a temporary variable
-        stdout_save = dup(STDOUT_FILENO);
-
-        //activate sigusr1
-        printf("Data saved on file %s\n",cont.outfile);
-        dup2(fd,STDOUT_FILENO);
-        close(fd);
+    if(contents.outfile != NULL) {
+        output_file_active(&contents);
     }
 
-    if(cont.dir_name != NULL) {
-        int return_value = 0;
-        char curr_path[MAX_BUF] = "";
-        strcpy(curr_path,cont.dir_name);
-
-        //fazer fork tal que pai le os sinais e o filho faz chamada recursiva
-        pid_t pid = fork();
-
-        if(pid > 0){
-            if(cont.outfile != NULL)
-                subscribeSIGUSR();
-        }
-        else if (pid == 0){
-            if((return_value = recursive_forensic(curr_path,&cont)) !=0) {
-                perror(curr_path);
-            }            
-        }
-
-        int status;
-        while(wait(&status) > 0);
-        // if(cont.outfile != NULL) {
-        //     close(fd);
-        //     close(stdout_save);
-        // }
+    if(contents.dir_name != NULL) {
+        recursive_analysis(&contents);
     }
 
-    if(cont.file_name != NULL) {
-        char* result = calloc(MAX_BUF,1);
-    
-        if(file_forensic(cont.file_name, &cont, result) != 0){
-            perror("Forensic Error\n");
-        }
-
-        printf("%s\n", result);
-
-        free(result);
+    if(contents.file_name != NULL) {
+        single_file_analysis(&contents);
     }
 
     return 0;

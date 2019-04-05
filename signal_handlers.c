@@ -19,33 +19,11 @@ static bool sigint = false;
 //handlers code
 void SIGUSR1_handler(int sigusr1_counter){
     sigusr1_counter++;
-  //  printf("handler1:%d\n", sigusr1_counter);
-
-   // printMsg();
 }
 
 void SIGUSR2_handler(int sigusr2_counter){
     sigusr2_counter++;
-        printf("handler2:%d\n", sigusr2_counter);
-
-    printMsg();
-}
-
-void SIGINT_handler(int sig) {
-    verbose_signal(getpid(),SIGINT);
-    sigint = true;
-}
-
-bool get_sigint() {
-    return sigint;
-}
-
-//install handlers
-void initializeActionStruct(){
-    sigemptyset(&action.sa_mask);
-}
-
-void printMsg(){
+    
     // int aux = dup(STDOUT_FILENO);
 
     // dup2(stdout_save, STDOUT_FILENO);
@@ -57,15 +35,13 @@ void printMsg(){
     // close(aux);
 }
 
-void install_SIGINT_handler() {
-    action.sa_handler = SIGINT_handler;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = SA_RESTART;
+void SIGINT_handler(int sig) {
+    verbose_signal(getpid(),SIGINT);
+    sigint = true;
+}
 
-    if (sigaction(SIGINT, &action, NULL) < 0) {
-        fprintf(stderr,"Unable to install SIGINT handler\n");
-        exit(1);
-    }
+bool get_sigint() {
+    return sigint;
 }
 
 void subscribeSignal(int SIGNAL, void (*func)(int), int FLAG){
@@ -85,5 +61,9 @@ void subscribeSIGUSR(){
     subscribeSignal(SIGUSR1, SIGUSR1_handler, SA_RESTART);
 
     subscribeSignal(SIGUSR2, SIGUSR2_handler, SA_RESTART);
+}
+
+void install_SIGINT_handler() {
+    subscribeSignal(SIGINT, SIGINT_handler, SA_RESTART);
 }
 
